@@ -1,0 +1,45 @@
+{
+  "name": "@fusedframes/cli",
+  "version": "1.0.0",
+  "description": "CLI for querying FusedFrames",
+  "type": "module",
+  "license": "MIT",
+  "author": "FusedFrames <hello@fusedframes.com> (https://fusedframes.com)",
+  "homepage": "https://fusedframes.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fusedframes/fusedframes-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fusedframes/fusedframes-cli/issues"
+  },
+  "bin": {
+    "fusedframes": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsc && chmod +x dist/index.js",
+    "prepublishOnly": "npm run build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^14.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.0",
+    "@types/node": "^22.0.0"
+  },
+  "keywords": [
+    "fusedframes",
+    "cli",
+    "patterns",
+    "ai-agent"
+  ]
+}
