@@ -48,7 +48,17 @@ export interface PatternSummary {
   updatedAt: string;
 }
 
+export interface SopStep {
+  id: string;
+  stepNumber: number;
+  application: string;
+  instruction: string;
+  detail: string | null;
+  expectedResult: string;
+}
+
 export interface PatternDetail extends PatternSummary {
+  sopSteps: SopStep[];
   library: { id: string; name: string };
   edges: {
     outgoing: { id: string; targetPatternId: string; targetPatternTitle: string; label: string; actionCount: number }[];

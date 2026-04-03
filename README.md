@@ -79,7 +79,7 @@ Get full detail for a pattern, including its relationships:
 fusedframes patterns get <pattern-id>
 ```
 
-This returns the pattern's behaviour, reasoning, trigger, outcome, category, tags, and all incoming and outgoing edges to other patterns.
+This returns the pattern's behaviour, reasoning, trigger, outcome, category, tags, standard operating procedure steps, and all incoming and outgoing edges to other patterns.
 
 Get the evidence actions that support a pattern:
 
