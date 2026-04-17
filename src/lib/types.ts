@@ -39,7 +39,7 @@ export interface PatternSummary {
   outcome: string;
   category: string;
   tags: string[];
-  applications: string | null;
+  applications: string[];
   actionCount: number;
   connectionCount: number;
   firstSeen: string | null;
@@ -57,20 +57,46 @@ export interface SopStep {
   expectedResult: string;
 }
 
+export interface PatternEdgeOutgoing {
+  id: string;
+  targetPatternId: string;
+  targetPatternTitle: string;
+  label: string;
+  edgeType: "data" | "semantic";
+  actionCount: number;
+}
+
+export interface PatternEdgeIncoming {
+  id: string;
+  sourcePatternId: string;
+  sourcePatternTitle: string;
+  label: string;
+  edgeType: "data" | "semantic";
+  actionCount: number;
+}
+
 export interface PatternDetail extends PatternSummary {
   sopSteps: SopStep[];
   library: { id: string; name: string };
   edges: {
-    outgoing: { id: string; targetPatternId: string; targetPatternTitle: string; label: string; actionCount: number }[];
-    incoming: { id: string; sourcePatternId: string; sourcePatternTitle: string; label: string; actionCount: number }[];
+    outgoing: PatternEdgeOutgoing[];
+    incoming: PatternEdgeIncoming[];
   };
+}
+
+export interface EvidenceQuestion {
+  id: string;
+  question: string;
+  response: string | null;
+  sequenceOrder: number;
 }
 
 export interface EvidenceAction {
   id: string;
-  question: string;
-  response: string | null;
-  createdAt: string;
+  title: string;
+  status: string;
+  questions: EvidenceQuestion[];
+  clientCreatedAt: string;
   events: string[];
 }
 
@@ -79,6 +105,7 @@ export interface GraphEdge {
   sourcePatternId: string;
   targetPatternId: string;
   label: string;
+  edgeType: "data" | "semantic";
   actionCount: number;
 }
 
@@ -87,7 +114,7 @@ export interface TraverseNode {
   title: string;
   behaviour: string;
   category: string;
-  applications: string | null;
+  applications: string[];
   actionCount: number;
   depth: number;
 }
@@ -98,7 +125,7 @@ export interface SearchPattern {
   behaviour: string;
   category: string;
   tags: string[];
-  applications: string | null;
+  applications: string[];
   actionCount: number;
   connectionCount: number;
   library: { id: string; name: string };

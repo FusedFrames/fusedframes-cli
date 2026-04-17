@@ -46,7 +46,7 @@ export async function request<T>(
     headers: {
       Authorization: `Bearer ${apiKey}`,
       Accept: "application/json",
-      "User-Agent": "@fusedframes/cli/1.0.0",
+      "User-Agent": "@fusedframes/cli/1.0.2",
     },
     signal: AbortSignal.timeout(30_000),
   });
