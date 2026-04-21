@@ -27,14 +27,24 @@
   "scripts": {
     "build": "tsc && chmod +x dist/index.js",
     "prepublishOnly": "npm run build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs,cjs}": "eslint --fix"
   },
   "dependencies": {
     "commander": "^14.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.0.0",
+    "eslint": "^10.2.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "typescript": "^6.0.0",
-    "@types/node": "^22.0.0"
+    "typescript-eslint": "^8.59.0"
   },
   "keywords": [
     "fusedframes",

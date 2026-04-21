@@ -1,0 +1,10 @@
+# Every change to this public npm package requires review from @hdenton.
+# Paths are listed for clarity; the wildcard covers them, but an explicit
+# entry makes intent obvious on critical files.
+
+*                          @hdenton
+
+/package.json              @hdenton
+/package-lock.json         @hdenton
+/.github/workflows/        @hdenton
+/src/index.ts              @hdenton
