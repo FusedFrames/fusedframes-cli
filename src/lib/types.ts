@@ -119,14 +119,55 @@ export interface TraverseNode {
   depth: number;
 }
 
+export interface SearchMatch {
+  signals: string[];
+  score: number;
+  semanticSimilarity: number | null;
+}
+
 export interface SearchPattern {
   id: string;
   title: string;
+  trigger: string;
   behaviour: string;
+  reasoning: string;
+  outcome: string;
   category: string;
   tags: string[];
   applications: string[];
   actionCount: number;
   connectionCount: number;
+  firstSeen: string | null;
+  lastSeen: string | null;
+  sopSteps: SopStep[];
+  edges: {
+    outgoing: PatternEdgeOutgoing[];
+    incoming: PatternEdgeIncoming[];
+  };
   library: { id: string; name: string };
+  relevance: SearchMatch;
+}
+
+export interface LibraryFacet {
+  id: string;
+  name: string;
+  patternCount: number;
+}
+
+export interface SearchFacets {
+  categories: CategoryCount[];
+  tags: TagCount[];
+  applications: ApplicationCount[];
+  libraries: LibraryFacet[];
+}
+
+export interface SearchResult {
+  patterns: SearchPattern[];
+  total: number;
+  matchedTotal: number;
+  page: number;
+  pageSize: number;
+  facets: SearchFacets;
+  lowConfidence: boolean;
+  guidance?: string;
 }
