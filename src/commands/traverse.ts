@@ -4,8 +4,8 @@ import { outputSuccess } from "../lib/output.js";
 
 export function registerTraverseCommand(program: Command): void {
   program
-    .command("traverse <patternId>")
-    .description("Traverse edges from a pattern")
+    .command("traverse <documentId>")
+    .description("Traverse edges from a document")
     .option(
       "--direction <value>",
       "Traversal direction (outgoing, incoming, both)",
@@ -15,10 +15,10 @@ export function registerTraverseCommand(program: Command): void {
     .option("--depth <number>", "Traversal depth (1-3)", "1")
     .action(
       async (
-        patternId: string,
+        documentId: string,
         opts: { direction: string; label?: string; depth: string }
       ) => {
-        const data = await request(`/patterns/${patternId}/traverse`, {
+        const data = await request(`/documents/${documentId}/traverse`, {
           direction: opts.direction,
           label: opts.label,
           depth: opts.depth,

@@ -3,7 +3,7 @@
 import { Command } from "commander";
 import { registerConfigCommands } from "./commands/config.js";
 import { registerLibraryCommands } from "./commands/libraries.js";
-import { registerPatternCommands } from "./commands/patterns.js";
+import { registerDocumentCommands } from "./commands/documents.js";
 import { registerGraphCommand } from "./commands/graph.js";
 import { registerTraverseCommand } from "./commands/traverse.js";
 import { registerSearchCommand } from "./commands/search.js";
@@ -14,13 +14,13 @@ const program = new Command();
 
 program
   .name("fusedframes")
-  .description("Query FusedFrames behavioural patterns")
+  .description("Query documents FusedFrames writes from recorded work")
   .version("1.0.0");
 
 // Register all command groups
 registerConfigCommands(program);
 registerLibraryCommands(program);
-registerPatternCommands(program);
+registerDocumentCommands(program);
 registerGraphCommand(program);
 registerTraverseCommand(program);
 registerSearchCommand(program);

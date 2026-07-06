@@ -22,7 +22,7 @@ export async function request<T>(
   const apiKey = requireApiKey();
   const baseUrl = getApiUrl();
 
-  // Enforce HTTPS (allow http://localhost for dev)
+  // Require HTTPS (allow http://localhost for dev)
   if (!baseUrl.startsWith("https://") && !baseUrl.startsWith("http://localhost")) {
     throw new FusedFramesError(
       "config_error",

@@ -1,6 +1,6 @@
 # @fusedframes/cli
 
-Query behavioural patterns captured by [FusedFrames](https://fusedframes.com) from the command line. Designed for AI agents to traverse pattern libraries, follow relationships between patterns and retrieve evidence.
+Query documents written by [FusedFrames](https://fusedframes.com) from your team's recorded work, straight from the command line. Designed for AI agents to traverse document libraries, follow relationships between documents and retrieve source recordings.
 
 ## Install
 
@@ -42,7 +42,7 @@ fusedframes config show
 
 ### Browse libraries
 
-List all pattern libraries your API key has access to:
+List all document libraries your API key has access to:
 
 ```bash
 fusedframes libraries list
@@ -62,64 +62,64 @@ fusedframes libraries tags <library-id>
 fusedframes libraries applications <library-id>
 ```
 
-### Query patterns
+### Query documents
 
-List patterns in a library with optional filters:
-
-```bash
-fusedframes patterns list <library-id>
-fusedframes patterns list <library-id> --category "Deployment"
-fusedframes patterns list <library-id> --tag "rollback" --app "Terminal"
-fusedframes patterns list <library-id> --search "failed health check"
-```
-
-Get full detail for a pattern, including its relationships:
+List documents in a library with optional filters:
 
 ```bash
-fusedframes patterns get <pattern-id>
+fusedframes documents list <library-id>
+fusedframes documents list <library-id> --category "Deployment"
+fusedframes documents list <library-id> --tag "rollback" --app "Terminal"
+fusedframes documents list <library-id> --search "failed health check"
 ```
 
-This returns the pattern's behaviour, reasoning, trigger, outcome, category, tags, standard operating procedure steps, and all incoming and outgoing edges to other patterns.
-
-Get the evidence actions that support a pattern:
+Get full detail for a document, including its relationships:
 
 ```bash
-fusedframes patterns evidence <pattern-id>
+fusedframes documents get <document-id>
 ```
 
-Each evidence action includes the original question, response, and a formatted event timeline showing exactly what happened.
+This returns the document's behaviour, reasoning, trigger, outcome, category, tags, standard operating procedure steps and all incoming and outgoing edges to other documents.
+
+Get the source recordings a document is based on:
+
+```bash
+fusedframes documents source-recordings <document-id>
+```
+
+Each source recording includes the original question, response and the formatted steps showing exactly what happened.
 
 ### Traverse the graph
 
-Get the full pattern graph for a library in a single call:
+Get the full document graph for a library in a single call:
 
 ```bash
 fusedframes graph <library-id>
 ```
 
-Returns all patterns and all edges. Useful for building a complete picture of a library.
+Returns all documents and all edges. Useful for building a complete picture of a library.
 
-Follow relationships from a specific pattern:
+Follow relationships from a specific document:
 
 ```bash
-fusedframes traverse <pattern-id>
-fusedframes traverse <pattern-id> --depth 2
-fusedframes traverse <pattern-id> --direction outgoing --label "often next"
-fusedframes traverse <pattern-id> --depth 3 --direction both
+fusedframes traverse <document-id>
+fusedframes traverse <document-id> --depth 2
+fusedframes traverse <document-id> --direction outgoing --label "often next"
+fusedframes traverse <document-id> --depth 3 --direction both
 ```
 
-Depth controls how many levels of connected patterns to follow (1-3). Direction can be `outgoing`, `incoming`, or `both`.
+Depth controls how many levels of connected documents to follow (1-3). Direction can be `outgoing`, `incoming`, or `both`.
 
-Edge labels describe the relationship between patterns:
+Edge labels describe the relationship between documents:
 
 | Label | Meaning |
 |---|---|
 | `often next` | What typically happens after |
 | `often previous` | What typically happens before |
 | `variation to` | An alternative approach |
-| `contradicts` | Conflicts with this pattern |
+| `contradicts` | Conflicts with this document |
 | `often occurs with` | Usually happening alongside |
-| `exception to` | Edge case where a pattern doesn't apply |
+| `exception to` | Edge case where a document doesn't apply |
 
 ### Search
 
@@ -136,8 +136,8 @@ fusedframes search "review" --library <library-id>
 Commands that return lists support `--page` and `--page-size`:
 
 ```bash
-fusedframes patterns list <library-id> --page 2 --page-size 50
-fusedframes patterns evidence <pattern-id> --page 1 --page-size 10
+fusedframes documents list <library-id> --page 2 --page-size 50
+fusedframes documents source-recordings <document-id> --page 1 --page-size 10
 ```
 
 Defaults: page 1, 20 results per page.
@@ -171,12 +171,12 @@ This CLI is designed to be called by AI agents (Claude Code, Cursor, Windsurf, C
 
 A typical agent workflow:
 
-1. `fusedframes search "deployment failure"` to find relevant patterns
-2. `fusedframes patterns get <id>` to read the full pattern and its edges
-3. `fusedframes traverse <id> --depth 2` to explore related patterns
-4. `fusedframes patterns evidence <id>` to see the raw actions that support the pattern
+1. `fusedframes search "deployment failure"` to find relevant documents
+2. `fusedframes documents get <id>` to read the full document and its edges
+3. `fusedframes traverse <id> --depth 2` to explore related documents
+4. `fusedframes documents source-recordings <id>` to see the raw recordings the document is based on
 
-The agent uses pattern edges to navigate between related behaviours and build context about how your team works.
+The agent uses document edges to navigate between related behaviours and build context about how your team works.
 
 ## Requirements
 

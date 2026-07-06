@@ -6,7 +6,7 @@ export interface LibrarySummary {
   description: string | null;
   categories: string[];
   tags: string[];
-  patternCount: number;
+  documentCount: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -17,20 +17,20 @@ export interface LibraryDetail extends LibrarySummary {
 
 export interface CategoryCount {
   name: string;
-  patternCount: number;
+  documentCount: number;
 }
 
 export interface TagCount {
   name: string;
-  patternCount: number;
+  documentCount: number;
 }
 
 export interface ApplicationCount {
   name: string;
-  patternCount: number;
+  documentCount: number;
 }
 
-export interface PatternSummary {
+export interface DocumentSummary {
   id: string;
   title: string;
   behaviour: string;
@@ -40,8 +40,8 @@ export interface PatternSummary {
   category: string;
   tags: string[];
   applications: string[];
-  actionCount: number;
-  connectionCount: number;
+  recordingCount: number;
+  deviceCount: number;
   firstSeen: string | null;
   lastSeen: string | null;
   createdAt: string;
@@ -57,56 +57,56 @@ export interface SopStep {
   expectedResult: string;
 }
 
-export interface PatternEdgeOutgoing {
+export interface DocumentEdgeOutgoing {
   id: string;
-  targetPatternId: string;
-  targetPatternTitle: string;
+  targetDocumentId: string;
+  targetDocumentTitle: string;
   label: string;
   edgeType: "data" | "semantic";
-  actionCount: number;
+  recordingCount: number;
 }
 
-export interface PatternEdgeIncoming {
+export interface DocumentEdgeIncoming {
   id: string;
-  sourcePatternId: string;
-  sourcePatternTitle: string;
+  sourceDocumentId: string;
+  sourceDocumentTitle: string;
   label: string;
   edgeType: "data" | "semantic";
-  actionCount: number;
+  recordingCount: number;
 }
 
-export interface PatternDetail extends PatternSummary {
+export interface DocumentDetail extends DocumentSummary {
   sopSteps: SopStep[];
   library: { id: string; name: string };
   edges: {
-    outgoing: PatternEdgeOutgoing[];
-    incoming: PatternEdgeIncoming[];
+    outgoing: DocumentEdgeOutgoing[];
+    incoming: DocumentEdgeIncoming[];
   };
 }
 
-export interface EvidenceQuestion {
+export interface RecordingQuestion {
   id: string;
   question: string;
   response: string | null;
   sequenceOrder: number;
 }
 
-export interface EvidenceAction {
+export interface SourceRecording {
   id: string;
   title: string;
   status: string;
-  questions: EvidenceQuestion[];
+  questions: RecordingQuestion[];
   clientCreatedAt: string;
-  events: string[];
+  steps: string[];
 }
 
 export interface GraphEdge {
   id: string;
-  sourcePatternId: string;
-  targetPatternId: string;
+  sourceDocumentId: string;
+  targetDocumentId: string;
   label: string;
   edgeType: "data" | "semantic";
-  actionCount: number;
+  recordingCount: number;
 }
 
 export interface TraverseNode {
@@ -115,18 +115,18 @@ export interface TraverseNode {
   behaviour: string;
   category: string;
   applications: string[];
-  actionCount: number;
+  recordingCount: number;
   depth: number;
 }
 
-export interface SearchPattern {
+export interface SearchDocument {
   id: string;
   title: string;
   behaviour: string;
   category: string;
   tags: string[];
   applications: string[];
-  actionCount: number;
-  connectionCount: number;
+  recordingCount: number;
+  deviceCount: number;
   library: { id: string; name: string };
 }

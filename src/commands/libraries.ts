@@ -6,11 +6,11 @@ import type { LibrarySummary, LibraryDetail, CategoryCount, TagCount, Applicatio
 export function registerLibraryCommands(program: Command): void {
   const libraries = program
     .command("libraries")
-    .description("Browse pattern libraries");
+    .description("Browse document libraries");
 
   libraries
     .command("list")
-    .description("List all accessible pattern libraries")
+    .description("List all accessible document libraries")
     .action(async () => {
       const data = await request<{ libraries: LibrarySummary[] }>("/libraries");
       outputSuccess(data);
@@ -18,7 +18,7 @@ export function registerLibraryCommands(program: Command): void {
 
   libraries
     .command("get <id>")
-    .description("Get pattern library detail")
+    .description("Get document library detail")
     .action(async (id: string) => {
       const data = await request<LibraryDetail>(`/libraries/${id}`);
       outputSuccess(data);
@@ -26,7 +26,7 @@ export function registerLibraryCommands(program: Command): void {
 
   libraries
     .command("categories <id>")
-    .description("List categories with pattern counts")
+    .description("List categories with document counts")
     .action(async (id: string) => {
       const data = await request<{ categories: CategoryCount[] }>(
         `/libraries/${id}/categories`
@@ -36,7 +36,7 @@ export function registerLibraryCommands(program: Command): void {
 
   libraries
     .command("tags <id>")
-    .description("List tags with pattern counts")
+    .description("List tags with document counts")
     .action(async (id: string) => {
       const data = await request<{ tags: TagCount[] }>(
         `/libraries/${id}/tags`
@@ -46,7 +46,7 @@ export function registerLibraryCommands(program: Command): void {
 
   libraries
     .command("applications <id>")
-    .description("List applications with pattern counts")
+    .description("List applications with document counts")
     .action(async (id: string) => {
       const data = await request<{ applications: ApplicationCount[] }>(
         `/libraries/${id}/applications`

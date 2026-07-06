@@ -1,16 +1,16 @@
 import { Command } from "commander";
 import { request } from "../lib/client.js";
 import { outputSuccess } from "../lib/output.js";
-import type { PatternSummary, PatternDetail, EvidenceAction } from "../lib/types.js";
+import type { DocumentSummary, DocumentDetail, SourceRecording } from "../lib/types.js";
 
-export function registerPatternCommands(program: Command): void {
-  const patterns = program
-    .command("patterns")
-    .description("Query patterns");
+export function registerDocumentCommands(program: Command): void {
+  const documents = program
+    .command("documents")
+    .description("Query documents");
 
-  patterns
+  documents
     .command("list <libraryId>")
-    .description("List patterns in a library")
+    .description("List documents in a library")
     .option("--category <value>", "Filter by category")
     .option("--tag <value>", "Filter by tag")
     .option("--app <value>", "Filter by application")
@@ -30,11 +30,11 @@ export function registerPatternCommands(program: Command): void {
         }
       ) => {
         const data = await request<{
-          patterns: PatternSummary[];
+          documents: DocumentSummary[];
           total: number;
           page: number;
           pageSize: number;
-        }>(`/libraries/${libraryId}/patterns`, {
+        }>(`/libraries/${libraryId}/documents`, {
           category: opts.category,
           tag: opts.tag,
           application: opts.app,
@@ -46,27 +46,27 @@ export function registerPatternCommands(program: Command): void {
       }
     );
 
-  patterns
+  documents
     .command("get <id>")
-    .description("Get full pattern detail with inline edges")
+    .description("Get full document detail with inline edges")
     .action(async (id: string) => {
-      const data = await request<PatternDetail>(`/patterns/${id}`);
+      const data = await request<DocumentDetail>(`/documents/${id}`);
       outputSuccess(data);
     });
 
-  patterns
-    .command("evidence <id>")
-    .description("Get evidence actions for a pattern")
+  documents
+    .command("source-recordings <id>")
+    .description("Get the source recordings behind a document")
     .option("--page <number>", "Page number", "1")
     .option("--page-size <number>", "Results per page", "20")
     .action(
       async (id: string, opts: { page: string; pageSize: string }) => {
         const data = await request<{
-          evidence: EvidenceAction[];
+          sourceRecordings: SourceRecording[];
           total: number;
           page: number;
           pageSize: number;
-        }>(`/patterns/${id}/evidence`, {
+        }>(`/documents/${id}/source-recordings`, {
           page: opts.page,
           pageSize: opts.pageSize,
         });

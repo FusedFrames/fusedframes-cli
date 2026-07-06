@@ -5,7 +5,7 @@ import { outputSuccess } from "../lib/output.js";
 export function registerSearchCommand(program: Command): void {
   program
     .command("search <query>")
-    .description("Search patterns across all accessible libraries")
+    .description("Search documents across all accessible libraries")
     .option("--category <value>", "Filter by category")
     .option("--tag <value>", "Filter by tag")
     .option("--library <value>", "Filter by library ID")
@@ -22,7 +22,7 @@ export function registerSearchCommand(program: Command): void {
           pageSize: string;
         }
       ) => {
-        const data = await request("/search/patterns", {
+        const data = await request("/search/documents", {
           q: query,
           category: opts.category,
           tag: opts.tag,
