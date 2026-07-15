@@ -79,7 +79,7 @@ Get full detail for a document, including its relationships:
 fusedframes documents get <document-id>
 ```
 
-This returns the document's behaviour, reasoning, trigger, outcome, category, tags, standard operating procedure steps and all incoming and outgoing edges to other documents.
+This returns the document's structured content (for the default library structure: behaviour, reasoning, trigger, outcome and standard operating procedure steps), the library schema that shapes it, its category, tags and all incoming and outgoing edges to other documents.
 
 Get the source recordings a document is based on:
 
@@ -116,10 +116,7 @@ Edge labels describe the relationship between documents:
 |---|---|
 | `often next` | What typically happens after |
 | `often previous` | What typically happens before |
-| `variation to` | An alternative approach |
-| `contradicts` | Conflicts with this document |
-| `often occurs with` | Usually happening alongside |
-| `exception to` | Edge case where a document doesn't apply |
+| `alternative to` | An alternative approach |
 
 ### Search
 
