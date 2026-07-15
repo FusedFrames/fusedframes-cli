@@ -15,7 +15,7 @@ const program = new Command();
 program
   .name("fusedframes")
   .description("Query documents FusedFrames writes from recorded work")
-  .version("1.0.0");
+  .version("1.0.2");
 
 // Register all command groups
 registerConfigCommands(program);

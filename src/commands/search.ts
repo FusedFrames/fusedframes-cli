@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import { request } from "../lib/client.js";
 import { outputSuccess } from "../lib/output.js";
+import type { SearchResult } from "../lib/types.js";
 
 export function registerSearchCommand(program: Command): void {
   program
@@ -22,7 +23,7 @@ export function registerSearchCommand(program: Command): void {
           pageSize: string;
         }
       ) => {
-        const data = await request("/search/documents", {
+        const data = await request<SearchResult>("/search/documents", {
           q: query,
           category: opts.category,
           tag: opts.tag,
