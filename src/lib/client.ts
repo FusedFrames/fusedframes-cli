@@ -1,4 +1,5 @@
 import { requireApiKey, getApiUrl } from "./config.js";
+import { VERSION } from "./version.js";
 
 interface ApiError {
   error: { code: string; message: string };
@@ -6,12 +7,10 @@ interface ApiError {
 
 export class FusedFramesError extends Error {
   code: string;
-  status: number;
 
-  constructor(code: string, message: string, status: number) {
+  constructor(code: string, message: string) {
     super(message);
     this.code = code;
-    this.status = status;
   }
 }
 
@@ -26,8 +25,7 @@ export async function request<T>(
   if (!baseUrl.startsWith("https://") && !baseUrl.startsWith("http://localhost")) {
     throw new FusedFramesError(
       "config_error",
-      "API URL must use HTTPS. API keys cannot be sent over unencrypted connections.",
-      0
+      "API URL must use HTTPS. API keys cannot be sent over unencrypted connections."
     );
   }
 
@@ -46,7 +44,7 @@ export async function request<T>(
     headers: {
       Authorization: `Bearer ${apiKey}`,
       Accept: "application/json",
-      "User-Agent": "@fusedframes/cli/1.0.2",
+      "User-Agent": `@fusedframes/cli/${VERSION}`,
     },
     signal: AbortSignal.timeout(30_000),
   });
@@ -56,16 +54,11 @@ export async function request<T>(
     try {
       errorBody = (await response.json()) as ApiError;
     } catch {
-      throw new FusedFramesError(
-        "server_error",
-        `HTTP ${response.status}`,
-        response.status
-      );
+      throw new FusedFramesError("server_error", `HTTP ${response.status}`);
     }
     throw new FusedFramesError(
       errorBody.error?.code || "unknown",
-      errorBody.error?.message || `HTTP ${response.status}`,
-      response.status
+      errorBody.error?.message || `HTTP ${response.status}`
     );
   }
 

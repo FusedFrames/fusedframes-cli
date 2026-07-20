@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import { request } from "../lib/client.js";
 import { outputSuccess } from "../lib/output.js";
+import type { SearchResult } from "../lib/types.js";
 
 export function registerSearchCommand(program: Command): void {
   program
@@ -8,6 +9,7 @@ export function registerSearchCommand(program: Command): void {
     .description("Search documents across all accessible libraries")
     .option("--category <value>", "Filter by category")
     .option("--tag <value>", "Filter by tag")
+    .option("--app <value>", "Filter by application (case-insensitive)")
     .option("--library <value>", "Filter by library ID")
     .option("--page <number>", "Page number", "1")
     .option("--page-size <number>", "Results per page", "20")
@@ -17,15 +19,17 @@ export function registerSearchCommand(program: Command): void {
         opts: {
           category?: string;
           tag?: string;
+          app?: string;
           library?: string;
           page: string;
           pageSize: string;
         }
       ) => {
-        const data = await request("/search/documents", {
+        const data = await request<SearchResult>("/search/documents", {
           q: query,
           category: opts.category,
           tag: opts.tag,
+          application: opts.app,
           libraryId: opts.library,
           page: opts.page,
           pageSize: opts.pageSize,

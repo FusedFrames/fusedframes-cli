@@ -18,7 +18,7 @@ npm install -g @fusedframes/cli
 
 ## Setup
 
-Create an API key in your FusedFrames team settings under **Integrations > API keys**, then configure the CLI:
+Create an API key in your FusedFrames team settings at `fusedframes.com/team/<your-team>/api-keys`, then configure the CLI:
 
 ```bash
 echo "ff_your_api_key" | fusedframes config set-key
@@ -79,7 +79,7 @@ Get full detail for a document, including its relationships:
 fusedframes documents get <document-id>
 ```
 
-This returns the document's behaviour, reasoning, trigger, outcome, category, tags, standard operating procedure steps and all incoming and outgoing edges to other documents.
+This returns the document's structured content (for the default library structure: behaviour, reasoning, trigger, outcome and standard operating procedure steps), the library schema that shapes it, its category, tags and all incoming and outgoing edges to other documents.
 
 Get the source recordings a document is based on:
 
@@ -116,10 +116,7 @@ Edge labels describe the relationship between documents:
 |---|---|
 | `often next` | What typically happens after |
 | `often previous` | What typically happens before |
-| `variation to` | An alternative approach |
-| `contradicts` | Conflicts with this document |
-| `often occurs with` | Usually happening alongside |
-| `exception to` | Edge case where a document doesn't apply |
+| `alternative to` | An alternative approach |
 
 ### Search
 
@@ -128,6 +125,7 @@ Search across all accessible libraries:
 ```bash
 fusedframes search "failed deployment"
 fusedframes search "onboarding" --category "HR"
+fusedframes search "export invoices" --app "Xero"
 fusedframes search "review" --library <library-id>
 ```
 
@@ -150,7 +148,7 @@ All commands output JSON to stdout. Errors are also JSON:
 { "error": { "code": "unauthorised", "message": "Invalid or missing API key" } }
 ```
 
-Exit codes: `0` for success, `1` for errors, `2` for invalid arguments.
+Exit codes: `0` for success, `1` for errors (including invalid arguments).
 
 ## Environment variables
 
@@ -180,8 +178,8 @@ The agent uses document edges to navigate between related behaviours and build c
 
 ## Requirements
 
-- Node.js 18 or later
-- A FusedFrames account with a Pro or Enterprise plan
+- Node.js 20 or later
+- A FusedFrames account (API access is included on every plan)
 - An API key created in your team's integration settings
 
 ## Links
