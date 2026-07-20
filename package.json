@@ -25,7 +25,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "build": "tsc && chmod +x dist/index.js",
+    "build": "rm -rf dist && tsc && chmod +x dist/index.js",
     "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint",

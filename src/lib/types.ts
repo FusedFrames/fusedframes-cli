@@ -15,17 +15,8 @@ export interface LibraryDetail extends LibrarySummary {
   edgeCount: number;
 }
 
-export interface CategoryCount {
-  name: string;
-  documentCount: number;
-}
-
-export interface TagCount {
-  name: string;
-  documentCount: number;
-}
-
-export interface ApplicationCount {
+/** `{ name, documentCount }` — shared shape for categories, tags and applications. */
+export interface NameCount {
   name: string;
   documentCount: number;
 }
@@ -147,6 +138,23 @@ export interface GraphEdge {
   recordingCount: number;
 }
 
+export interface GraphDocument {
+  id: string;
+  title: string;
+  category: string;
+  tags: string[];
+  applications: string[];
+  recordingCount: number;
+  deviceCount: number;
+  content: DocumentContent;
+  schema: DocumentTemplate;
+}
+
+export interface GraphResult {
+  documents: GraphDocument[];
+  edges: GraphEdge[];
+}
+
 export interface TraverseNode {
   id: string;
   title: string;
@@ -156,6 +164,13 @@ export interface TraverseNode {
   depth: number;
   content: DocumentContent;
   schema: DocumentTemplate;
+}
+
+export interface TraverseResult {
+  root: string;
+  maxDepth: number;
+  nodes: TraverseNode[];
+  edges: GraphEdge[];
 }
 
 // ─── Search ─────────────────────────────────────────────────────────────────
@@ -191,9 +206,9 @@ export interface LibraryFacet {
 }
 
 export interface SearchFacets {
-  categories: CategoryCount[];
-  tags: TagCount[];
-  applications: ApplicationCount[];
+  categories: NameCount[];
+  tags: NameCount[];
+  applications: NameCount[];
   libraries: LibraryFacet[];
 }
 

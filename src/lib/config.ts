@@ -33,7 +33,7 @@ export function writeConfig(config: Config): void {
   });
 }
 
-export function getApiKey(): string | undefined {
+function getApiKey(): string | undefined {
   // Env var takes precedence
   if (process.env.FUSEDFRAMES_API_KEY) {
     return process.env.FUSEDFRAMES_API_KEY;

@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import { request } from "../lib/client.js";
 import { outputSuccess } from "../lib/output.js";
-import type { LibrarySummary, LibraryDetail, CategoryCount, TagCount, ApplicationCount } from "../lib/types.js";
+import type { LibrarySummary, LibraryDetail, NameCount } from "../lib/types.js";
 
 export function registerLibraryCommands(program: Command): void {
   const libraries = program
@@ -28,7 +28,7 @@ export function registerLibraryCommands(program: Command): void {
     .command("categories <id>")
     .description("List categories with document counts")
     .action(async (id: string) => {
-      const data = await request<{ categories: CategoryCount[] }>(
+      const data = await request<{ categories: NameCount[] }>(
         `/libraries/${id}/categories`
       );
       outputSuccess(data);
@@ -38,7 +38,7 @@ export function registerLibraryCommands(program: Command): void {
     .command("tags <id>")
     .description("List tags with document counts")
     .action(async (id: string) => {
-      const data = await request<{ tags: TagCount[] }>(
+      const data = await request<{ tags: NameCount[] }>(
         `/libraries/${id}/tags`
       );
       outputSuccess(data);
@@ -48,7 +48,7 @@ export function registerLibraryCommands(program: Command): void {
     .command("applications <id>")
     .description("List applications with document counts")
     .action(async (id: string) => {
-      const data = await request<{ applications: ApplicationCount[] }>(
+      const data = await request<{ applications: NameCount[] }>(
         `/libraries/${id}/applications`
       );
       outputSuccess(data);

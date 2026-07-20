@@ -9,6 +9,7 @@ export function registerSearchCommand(program: Command): void {
     .description("Search documents across all accessible libraries")
     .option("--category <value>", "Filter by category")
     .option("--tag <value>", "Filter by tag")
+    .option("--app <value>", "Filter by application (case-insensitive)")
     .option("--library <value>", "Filter by library ID")
     .option("--page <number>", "Page number", "1")
     .option("--page-size <number>", "Results per page", "20")
@@ -18,6 +19,7 @@ export function registerSearchCommand(program: Command): void {
         opts: {
           category?: string;
           tag?: string;
+          app?: string;
           library?: string;
           page: string;
           pageSize: string;
@@ -27,6 +29,7 @@ export function registerSearchCommand(program: Command): void {
           q: query,
           category: opts.category,
           tag: opts.tag,
+          application: opts.app,
           libraryId: opts.library,
           page: opts.page,
           pageSize: opts.pageSize,

@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import { request } from "../lib/client.js";
 import { outputSuccess } from "../lib/output.js";
+import type { TraverseResult } from "../lib/types.js";
 
 export function registerTraverseCommand(program: Command): void {
   program
@@ -18,7 +19,7 @@ export function registerTraverseCommand(program: Command): void {
         documentId: string,
         opts: { direction: string; label?: string; depth: string }
       ) => {
-        const data = await request(`/documents/${documentId}/traverse`, {
+        const data = await request<TraverseResult>(`/documents/${documentId}/traverse`, {
           direction: opts.direction,
           label: opts.label,
           depth: opts.depth,

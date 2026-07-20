@@ -18,7 +18,7 @@ npm install -g @fusedframes/cli
 
 ## Setup
 
-Create an API key in your FusedFrames team settings under **Integrations > API keys**, then configure the CLI:
+Create an API key in your FusedFrames team settings at `fusedframes.com/team/<your-team>/api-keys`, then configure the CLI:
 
 ```bash
 echo "ff_your_api_key" | fusedframes config set-key
@@ -125,6 +125,7 @@ Search across all accessible libraries:
 ```bash
 fusedframes search "failed deployment"
 fusedframes search "onboarding" --category "HR"
+fusedframes search "export invoices" --app "Xero"
 fusedframes search "review" --library <library-id>
 ```
 
@@ -147,7 +148,7 @@ All commands output JSON to stdout. Errors are also JSON:
 { "error": { "code": "unauthorised", "message": "Invalid or missing API key" } }
 ```
 
-Exit codes: `0` for success, `1` for errors, `2` for invalid arguments.
+Exit codes: `0` for success, `1` for errors (including invalid arguments).
 
 ## Environment variables
 
@@ -177,8 +178,8 @@ The agent uses document edges to navigate between related behaviours and build c
 
 ## Requirements
 
-- Node.js 18 or later
-- A FusedFrames account with a Pro or Enterprise plan
+- Node.js 20 or later
+- A FusedFrames account (API access is included on every plan)
 - An API key created in your team's integration settings
 
 ## Links
