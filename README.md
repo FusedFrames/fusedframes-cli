@@ -18,7 +18,7 @@ npm install -g @fusedframes/cli
 
 ## Setup
 
-Create an API key in your FusedFrames team settings at `fusedframes.com/team/<your-team>/api-keys`, then configure the CLI:
+Create an API key in your FusedFrames workspace settings at `fusedframes.com/workspace/<your-workspace>/api-keys`, then configure the CLI:
 
 ```bash
 echo "ff_your_api_key" | fusedframes config set-key
@@ -180,7 +180,7 @@ The agent uses document edges to navigate between related behaviours and build c
 
 - Node.js 20 or later
 - A FusedFrames account (API access is included on every plan)
-- An API key created in your team's integration settings
+- An API key created in your workspace's integration settings
 
 ## Links
 
