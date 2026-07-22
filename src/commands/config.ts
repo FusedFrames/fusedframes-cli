@@ -21,15 +21,20 @@ export function registerConfigCommands(program: Command): void {
   const config = program.command("config").description("Manage CLI configuration");
 
   config
-    .command("set-key [apiKey]")
-    .description("Set the API key (reads from stdin if not provided)")
-    .action(async (apiKey?: string) => {
-      let key = apiKey;
-
-      // If no argument provided, read from stdin
-      if (!key) {
-        key = await readStdin();
+    .command("set-key")
+    .allowExcessArguments(true)
+    .description("Set the API key (reads from stdin)")
+    .action(async (_options: unknown, command: Command) => {
+      // Never accept the key on the command line: argv is recorded in shell
+      // history and visible to other processes via ps.
+      if (command.args.length > 0) {
+        outputError(
+          "validation_error",
+          'API keys must not be passed as command-line arguments because they are saved in shell history and visible in process listings. Pipe the key via stdin instead: echo "ff_..." | fusedframes config set-key. Alternatively set the FUSEDFRAMES_API_KEY environment variable.'
+        );
       }
+
+      const key = await readStdin();
 
       if (!key) {
         outputError("validation_error", "No API key provided");

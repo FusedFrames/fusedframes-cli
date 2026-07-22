@@ -49,7 +49,7 @@ export function requireApiKey(): string {
   const key = getApiKey();
   if (!key) {
     throw new Error(
-      "API key not configured. Run: fusedframes config set-key <api-key>"
+      'API key not configured. Run: echo "ff_..." | fusedframes config set-key, or set the FUSEDFRAMES_API_KEY environment variable.'
     );
   }
   return key;
