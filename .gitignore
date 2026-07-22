@@ -2,3 +2,9 @@ node_modules/
 dist/
 *.tsbuildinfo
 .DS_Store
+
+# Local environment files (may contain API keys). .env.example stays tracked;
+# none of these patterns match it.
+.env
+.env.local
+.env.*.local
