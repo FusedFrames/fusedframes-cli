@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from "fs";
+import { chmodSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
 
@@ -31,6 +31,19 @@ export function writeConfig(config: Config): void {
   writeFileSync(path, JSON.stringify(config, null, 2) + "\n", {
     mode: 0o600,
   });
+
+  // `writeFileSync`'s `mode` only applies when the file is newly created, so a
+  // config.json that already existed with looser permissions (user-created, or
+  // restored from a backup that dropped perms) would never be tightened. Force
+  // owner-only permissions on every write so the plaintext key can't sit
+  // world/group-readable.
+  try {
+    chmodSync(dir, 0o700);
+    chmodSync(path, 0o600);
+  } catch {
+    // chmod is unsupported on some filesystems (e.g. Windows) — the key is
+    // still written; best-effort hardening only.
+  }
 }
 
 function getApiKey(): string | undefined {
