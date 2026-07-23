@@ -1,78 +1,81 @@
 import { Command } from "commander";
-import { readConfig, writeConfig, getConfigInfo } from "../lib/config.js";
+import {
+  readConfig,
+  writeConfig,
+  getConfigInfo,
+  clearApiKey,
+  hasStoredApiKey,
+} from "../lib/config.js";
 import { outputSuccess, outputError } from "../lib/output.js";
 
-// Read a piped/redirected API key from stdin (the recommended, history-safe
-// path: `echo "ff_..." | fusedframes config set-key`).
-function readPipedStdin(): Promise<string> {
-  return new Promise((resolve, reject) => {
-    let data = "";
-    process.stdin.setEncoding("utf-8");
-    process.stdin.on("data", (chunk) => (data += chunk));
-    process.stdin.on("end", () => resolve(data.trim()));
-    process.stdin.on("error", reject);
-  });
-}
+// Control characters read from a raw-mode TTY, by code point.
+const ENTER_LF = 10; // \n
+const ENTER_CR = 13; // \r
+const CTRL_C = 3; // ETX — abort
+const CTRL_D = 4; // EOT — end of input
+const BACKSPACE = 8; // \b
+const DELETE = 127; // DEL
 
-// Read the key from an interactive terminal WITHOUT echoing it. The key is
-// sensitive: echoing it leaves it visible on screen and in terminal
-// scrollback, which is a real exposure for a screen-recording product (screen
-// shares, recordings). We put the TTY into raw mode, suppress echo, and accept
-// the key on Enter.
-function readTtyNoEcho(): Promise<string> {
+function readKeyFromStdin(): Promise<string> {
+  // Piped / redirected input (the documented
+  // `echo "ff_..." | fusedframes config set-key` path): read to EOF.
+  if (!process.stdin.isTTY) {
+    return new Promise((resolve, reject) => {
+      let data = "";
+      process.stdin.setEncoding("utf-8");
+      process.stdin.on("data", (chunk) => (data += chunk));
+      process.stdin.on("end", () => resolve(data.trim()));
+      process.stdin.on("error", reject);
+    });
+  }
+
+  // Interactive terminal: read a single line and resolve on Enter (not only on
+  // EOF, which looked like a hang), and don't echo the key back to the screen.
   return new Promise((resolve, reject) => {
     const stdin = process.stdin;
-    process.stderr.write("Enter API key (input hidden): ");
+    process.stderr.write("Paste your API key and press Enter: ");
     stdin.setEncoding("utf-8");
-
-    const wasRaw = stdin.isRaw ?? false;
-    stdin.setRawMode(true);
+    stdin.setRawMode?.(true);
     stdin.resume();
 
-    const ENTER_LF = 0x0a;
-    const ENTER_CR = 0x0d;
-    const EOT = 0x04; // Ctrl-D
-    const ETX = 0x03; // Ctrl-C
-    const BACKSPACE = 0x08;
-    const DELETE = 0x7f;
-
-    let buf = "";
+    let data = "";
     const cleanup = () => {
-      stdin.removeListener("data", onData);
-      stdin.setRawMode(wasRaw);
+      stdin.setRawMode?.(false);
       stdin.pause();
+      stdin.removeListener("data", onData);
+      stdin.removeListener("error", onError);
+    };
+    const finish = () => {
+      process.stderr.write("\n");
+      cleanup();
+      resolve(data.trim());
     };
     const onData = (chunk: string) => {
       for (const ch of chunk) {
         const code = ch.charCodeAt(0);
-        if (code === ENTER_LF || code === ENTER_CR || code === EOT) {
-          cleanup();
-          process.stderr.write("\n");
-          resolve(buf.trim());
+        if (code === ENTER_LF || code === ENTER_CR || code === CTRL_D) {
+          finish();
           return;
         }
-        if (code === ETX) {
-          cleanup();
+        if (code === CTRL_C) {
           process.stderr.write("\n");
-          reject(new Error("Aborted"));
-          return;
+          cleanup();
+          process.exit(130);
         }
         if (code === BACKSPACE || code === DELETE) {
-          buf = buf.slice(0, -1);
+          data = data.slice(0, -1);
           continue;
         }
-        // Keep printable input only; drop other control characters.
-        if (code >= 0x20) buf += ch;
+        data += ch;
       }
     };
+    const onError = (err: Error) => {
+      cleanup();
+      reject(err);
+    };
     stdin.on("data", onData);
+    stdin.on("error", onError);
   });
-}
-
-function readStdin(): Promise<string> {
-  // Interactive terminal: prompt with echo disabled. Otherwise read the piped
-  // key from stdin.
-  return process.stdin.isTTY ? readTtyNoEcho() : readPipedStdin();
 }
 
 export function registerConfigCommands(program: Command): void {
@@ -92,7 +95,7 @@ export function registerConfigCommands(program: Command): void {
         );
       }
 
-      const key = await readStdin();
+      const key = await readKeyFromStdin();
 
       if (!key) {
         outputError("validation_error", "No API key provided");
@@ -108,5 +111,33 @@ export function registerConfigCommands(program: Command): void {
     .description("Show current configuration")
     .action(() => {
       outputSuccess(getConfigInfo());
+    });
+}
+
+export function registerLogoutCommand(program: Command): void {
+  program
+    .command("logout")
+    .alias("clear-key")
+    .description("Remove the stored API key from this machine")
+    .action(() => {
+      const had = hasStoredApiKey();
+      clearApiKey();
+
+      const message = had
+        ? "Stored API key removed."
+        : "No stored API key to remove.";
+
+      // The env var overrides the stored key, so clearing the file doesn't fully
+      // log you out while it's set — say so plainly.
+      if (process.env.FUSEDFRAMES_API_KEY) {
+        outputSuccess({
+          success: true,
+          message,
+          warning:
+            "The FUSEDFRAMES_API_KEY environment variable is still set and takes precedence over the stored key. Unset it in your shell to fully sign out.",
+        });
+      } else {
+        outputSuccess({ success: true, message });
+      }
     });
 }
