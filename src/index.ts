@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { registerConfigCommands } from "./commands/config.js";
+import { registerConfigCommands, registerLogoutCommand } from "./commands/config.js";
 import { registerLibraryCommands } from "./commands/libraries.js";
 import { registerDocumentCommands } from "./commands/documents.js";
 import { registerGraphCommand } from "./commands/graph.js";
@@ -25,6 +25,7 @@ program.exitOverride();
 
 // Register all command groups
 registerConfigCommands(program);
+registerLogoutCommand(program);
 registerLibraryCommands(program);
 registerDocumentCommands(program);
 registerGraphCommand(program);

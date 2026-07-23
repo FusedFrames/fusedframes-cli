@@ -15,10 +15,22 @@ function getConfigPath(): string {
 }
 
 export function readConfig(): Config {
+  let data: string;
   try {
-    const data = readFileSync(getConfigPath(), "utf-8");
+    data = readFileSync(getConfigPath(), "utf-8");
+  } catch {
+    // No config file yet (ENOENT) or unreadable: treat as empty config.
+    return {};
+  }
+  try {
     return JSON.parse(data) as Config;
   } catch {
+    // The file exists but is corrupt/unparseable. Don't silently pretend there
+    // is no config — warn (to stderr, so JSON stdout stays clean) and continue.
+    process.stderr.write(
+      `Warning: config file at ${getConfigPath()} is not valid JSON and was ignored. ` +
+        `Re-set your key with: echo "ff_..." | fusedframes config set-key\n`
+    );
     return {};
   }
 }
@@ -31,6 +43,18 @@ export function writeConfig(config: Config): void {
   writeFileSync(path, JSON.stringify(config, null, 2) + "\n", {
     mode: 0o600,
   });
+}
+
+/** True if the stored config file currently holds an apiKey. */
+export function hasStoredApiKey(): boolean {
+  return Boolean(readConfig().apiKey);
+}
+
+/** Remove the stored apiKey, preserving any other config. Used by `logout`. */
+export function clearApiKey(): void {
+  const { apiKey: _removed, ...rest } = readConfig();
+  void _removed;
+  writeConfig(rest);
 }
 
 function getApiKey(): string | undefined {
