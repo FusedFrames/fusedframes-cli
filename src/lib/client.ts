@@ -21,8 +21,30 @@ export async function request<T>(
   const apiKey = requireApiKey();
   const baseUrl = getApiUrl();
 
-  // Require HTTPS (allow http://localhost for dev)
-  if (!baseUrl.startsWith("https://") && !baseUrl.startsWith("http://localhost")) {
+  // Require HTTPS so the API key is never sent in clear text. A plain-http
+  // exemption is allowed ONLY for genuine loopback hosts. Parse the URL and
+  // match the host exactly: a prefix check such as
+  // `startsWith("http://localhost")` also accepts `http://localhost.evil.com`
+  // and `http://localhost@evil.com`, which would leak the bearer key to an
+  // attacker-controlled host.
+  let parsedBase: URL;
+  try {
+    parsedBase = new URL(baseUrl);
+  } catch {
+    throw new FusedFramesError(
+      "config_error",
+      "API URL is not a valid URL."
+    );
+  }
+
+  const isLoopback =
+    parsedBase.protocol === "http:" &&
+    (parsedBase.hostname === "localhost" ||
+      parsedBase.hostname === "127.0.0.1" ||
+      parsedBase.hostname === "::1" ||
+      parsedBase.hostname === "[::1]");
+
+  if (parsedBase.protocol !== "https:" && !isLoopback) {
     throw new FusedFramesError(
       "config_error",
       "API URL must use HTTPS. API keys cannot be sent over unencrypted connections."
