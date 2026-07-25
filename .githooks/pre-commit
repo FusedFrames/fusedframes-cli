@@ -1,12 +1,14 @@
 #!/usr/bin/env sh
 set -e
 
-# Block direct commits to main/master.
+# Enable with: git config core.hooksPath .githooks
+
+# Block direct commits to main/master and the v2-high integration branch.
 branch=$(git symbolic-ref --short HEAD 2>/dev/null)
 case "$branch" in
-  main|master)
+  main|master|v2-high)
     printf '\n\033[1;31mBlocked: direct commit to %s is not allowed.\033[0m\n\n' "$branch" >&2
-    printf 'This repository is in production and publishes a public npm package.\n' >&2
+    printf 'This repository is in production and publishes a public CLI.\n' >&2
     printf 'Create a feature branch first:\n\n' >&2
     printf '    git switch -c <branch-name>\n\n' >&2
     exit 1
@@ -20,5 +22,6 @@ else
   echo "WARNING: gitleaks not installed - skipping secret scan. Run 'brew install gitleaks' to enable."
 fi
 
-# Lint and auto-fix staged files.
-npx lint-staged
+# Formatting and lints must be clean before a commit.
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
