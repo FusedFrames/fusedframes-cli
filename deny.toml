@@ -1,0 +1,40 @@
+# Supply-chain policy, enforced in CI by cargo-deny
+# (https://github.com/EmbarkStudios/cargo-deny). Complements the release
+# workflow's build-provenance attestation: dependencies must come from
+# crates.io only, carry a permissive licence, and be free of known advisories.
+
+[graph]
+all-features = true
+
+[advisories]
+yanked = "deny"
+
+[licenses]
+allow = [
+  "MIT",
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "MPL-2.0",
+  "Unicode-3.0",
+  "Zlib",
+  "CDLA-Permissive-2.0",
+  "OpenSSL",
+]
+
+# ring bundles code under several licences without a machine-readable SPDX
+# expression; this is the standard cargo-deny clarification for it.
+[[licenses.clarify]]
+crate = "ring"
+expression = "MIT AND ISC AND OpenSSL"
+license-files = [{ path = "LICENSE", hash = 0xbd0eed23 }]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

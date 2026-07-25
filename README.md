@@ -1,6 +1,8 @@
-# @fusedframes/cli
+# fusedframes-cli
 
 Query documents written by [FusedFrames](https://fusedframes.com) from your team's recorded work, straight from the command line. Designed for AI agents to traverse document libraries, follow relationships between documents and retrieve source recordings.
+
+A single native binary written in Rust — no language runtime required. TLS trust comes from the operating system's certificate store, so enterprise CAs work out of the box.
 
 ## Install
 
@@ -16,6 +18,33 @@ Or install globally:
 npm install -g @fusedframes/cli
 ```
 
+npm delivers a prebuilt native binary for your platform (macOS arm64/x64, Linux x64/arm64, Windows x64) — Node is only the delivery mechanism; the CLI itself is a single native executable.
+
+### Standalone binaries
+
+No Node? Download the binary for your platform from the [latest release](https://github.com/fusedframes/fusedframes-cli/releases/latest), then place it on your `PATH`:
+
+```bash
+tar -xzf fusedframes-v*-aarch64-apple-darwin.tar.gz
+sudo mv fusedframes /usr/local/bin/
+```
+
+Prebuilt targets: macOS (Apple Silicon and Intel), Linux (x86_64 and arm64, fully static musl builds), and Windows (x86_64).
+
+Every release ships a `SHA256SUMS` file and [build provenance attestations](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations); npm packages are published with npm provenance. Verify a download with:
+
+```bash
+gh attestation verify fusedframes-v*-aarch64-apple-darwin.tar.gz --repo fusedframes/fusedframes-cli
+```
+
+### From source
+
+Build with a Rust toolchain (1.88 or later):
+
+```bash
+cargo install --git https://github.com/fusedframes/fusedframes-cli
+```
+
 ## Setup
 
 Create an API key in your FusedFrames workspace settings at `fusedframes.com/workspace/<your-workspace>/api-keys`, then configure the CLI:
@@ -24,7 +53,7 @@ Create an API key in your FusedFrames workspace settings at `fusedframes.com/wor
 echo "ff_your_api_key" | fusedframes config set-key
 ```
 
-The key is stored at `~/.config/fusedframes/config.json` with restricted file permissions.
+The key is stored at `~/.config/fusedframes/config.json` with restricted file permissions. Keys are read from stdin only — never pass one as a command-line argument, and the CLI refuses them there, because argv is saved in shell history and visible in process listings.
 
 You can also set the key via environment variable:
 
@@ -150,6 +179,26 @@ All commands output JSON to stdout. Errors are also JSON:
 
 Exit codes: `0` for success, `1` for errors (including invalid arguments).
 
+### Error codes
+
+Codes produced by the CLI itself:
+
+| Code | Meaning |
+|---|---|
+| `validation_error` | Invalid command-line arguments, or an API key passed as an argument |
+| `config_error` | Missing API key, invalid API URL, or a non-HTTPS API URL |
+| `network_error` | The API could not be reached (DNS, connection, TLS, timeout) |
+| `server_error` | The API answered without the standard JSON error envelope |
+| `error` | Unexpected local failure (e.g. the config file could not be written) |
+
+API error codes pass through verbatim: `unauthorised`, `api_key_expired`, `api_key_device_removed`, `bad_request`, `forbidden`, `not_found`, `rate_limited`, `insufficient_ai_credit`, `subscription_suspended`, `internal_error`.
+
+Rate-limited responses include a `retryAfter` field with the number of seconds to wait, taken from the API's `Retry-After` header:
+
+```json
+{ "error": { "code": "rate_limited", "message": "Rate limit exceeded", "retryAfter": 12 } }
+```
+
 ## Environment variables
 
 | Variable | Purpose |
@@ -159,9 +208,17 @@ Exit codes: `0` for success, `1` for errors (including invalid arguments).
 
 ## Configuration
 
-The CLI stores its configuration at `~/.config/fusedframes/config.json`. The directory is created with `700` permissions and the file with `600` permissions.
+The CLI stores its configuration at `~/.config/fusedframes/config.json`. The directory is created with `700` permissions and the file with `600` permissions, re-tightened on every write.
 
 Environment variables take precedence over the config file.
+
+## Security
+
+- The API key is only ever sent over HTTPS. Plain HTTP is refused unless the host is genuinely loopback (`localhost`, `127.0.0.0/8`, `::1`) for local development; redirects follow the same rule, so a downgrade redirect can never carry the key in clear text.
+- Proxy environment variables (`http_proxy`, `https_proxy`, `all_proxy`) are deliberately ignored — the key never travels through a proxy the URL checks haven't vetted.
+- Keys are accepted via stdin or environment variable only, never as arguments.
+- `fusedframes config show` prints a masked key, never the full value.
+- `fusedframes logout` (alias `clear-key`) removes the stored key from the machine.
 
 ## AI agent usage
 
@@ -178,9 +235,23 @@ The agent uses document edges to navigate between related behaviours and build c
 
 ## Requirements
 
-- Node.js 20 or later
 - A FusedFrames account (API access is included on every plan)
 - An API key created in your workspace's integration settings
+
+## Development
+
+```bash
+cargo build            # debug build
+cargo test             # unit + end-to-end tests (spawns the real binary)
+cargo clippy --all-targets -- -D warnings
+cargo fmt --check
+```
+
+Enable the repo git hooks (branch guard + secret scan) once per clone:
+
+```bash
+git config core.hooksPath .githooks
+```
 
 ## Links
 
