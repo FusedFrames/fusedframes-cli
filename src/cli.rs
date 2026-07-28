@@ -1,6 +1,7 @@
-//! Command-line definitions. Command names, option names, defaults and help
-//! strings mirror the TypeScript CLI verbatim so agents and scripts keep
-//! working unchanged.
+//! Command-line definitions. Command names, option names and defaults mirror
+//! the TypeScript CLI so agents and scripts keep working unchanged. The help
+//! strings do not: they were rewritten in plain language for v2-high and no
+//! longer match the old CLI word for word.
 //!
 //! Pagination, depth and direction values are deliberately plain strings
 //! passed through to the API: the server is the single source of truth for
@@ -13,7 +14,7 @@ use clap::{Parser, Subcommand};
 #[command(
     name = "fusedframes",
     version,
-    about = "Query documents FusedFrames writes from recorded work",
+    about = "Find and read the documents FusedFrames makes from your recorded work",
     arg_required_else_help = true
 )]
 pub struct Cli {
@@ -23,14 +24,14 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Command {
-    /// Manage CLI configuration
+    /// See and change CLI settings
     #[command(arg_required_else_help = true)]
     Config {
         #[command(subcommand)]
         command: ConfigCommand,
     },
 
-    /// Remove the stored API key from this machine
+    /// Remove the saved API key from this computer
     #[command(visible_alias = "clear-key")]
     Logout,
 
@@ -41,7 +42,7 @@ pub enum Command {
         command: LibrariesCommand,
     },
 
-    /// Query documents
+    /// Find documents
     #[command(arg_required_else_help = true)]
     Documents {
         #[command(subcommand)]
@@ -54,11 +55,11 @@ pub enum Command {
         library_id: String,
     },
 
-    /// Traverse edges from a document
+    /// Follow the edges from a document
     Traverse {
         #[arg(value_name = "documentId")]
         document_id: String,
-        /// Traversal direction (outgoing, incoming, both)
+        /// Which way to follow edges (outgoing, incoming, both)
         #[arg(
             long,
             allow_hyphen_values = true,
@@ -69,7 +70,7 @@ pub enum Command {
         /// Filter by edge label
         #[arg(long, allow_hyphen_values = true, value_name = "value")]
         label: Option<String>,
-        /// Traversal depth (1-3)
+        /// How many steps to follow (1-3)
         #[arg(
             long,
             allow_hyphen_values = true,
@@ -79,7 +80,7 @@ pub enum Command {
         depth: String,
     },
 
-    /// Search documents across all accessible libraries
+    /// Search documents in all the libraries you can see
     Search {
         #[arg(value_name = "query")]
         query: String,
@@ -89,7 +90,7 @@ pub enum Command {
         /// Filter by tag
         #[arg(long, allow_hyphen_values = true, value_name = "value")]
         tag: Option<String>,
-        /// Filter by application (case-insensitive)
+        /// Filter by application (capital or small letters both work)
         #[arg(long, allow_hyphen_values = true, value_name = "value")]
         app: Option<String>,
         /// Filter by library ID
@@ -124,13 +125,13 @@ pub enum ConfigCommand {
         #[arg(hide = true, num_args = 0.., value_name = "rejected")]
         rejected: Vec<String>,
     },
-    /// Show current configuration
+    /// Show the current settings
     Show,
 }
 
 #[derive(Debug, Subcommand)]
 pub enum LibrariesCommand {
-    /// List all accessible document libraries
+    /// List all the document libraries you can see
     List,
     /// Get document library detail
     Get {
@@ -189,7 +190,7 @@ pub enum DocumentsCommand {
         )]
         page_size: String,
     },
-    /// Get full document detail with inline edges
+    /// Get the full document, with its edges included
     Get {
         #[arg(value_name = "id")]
         id: String,

@@ -53,7 +53,8 @@ pub fn request(segments: &[&str], params: &[(&str, Option<&str>)]) -> Result<Val
     if parsed_base.scheme() != "https" && !loopback_http {
         return Err(CliError::new(
             "config_error",
-            "API URL must use HTTPS. API keys cannot be sent over unencrypted connections.",
+            "The API URL must use HTTPS. Your API key is secret and we can't send it \
+             over a link that is not secure.",
         ));
     }
 
@@ -87,7 +88,7 @@ pub fn request(segments: &[&str], params: &[(&str, Option<&str>)]) -> Result<Val
     serde_json::from_str(&body).map_err(|err| {
         CliError::new(
             "server_error",
-            format!("Invalid JSON in API response: {err}"),
+            format!("The API reply was not valid JSON: {err}"),
         )
     })
 }
@@ -156,7 +157,7 @@ fn http_client() -> Result<reqwest::blocking::Client, CliError> {
         if target_ok {
             attempt.follow()
         } else {
-            attempt.error("insecure redirect blocked (non-HTTPS target)")
+            attempt.error("redirect blocked: the new address is not HTTPS")
         }
     });
 
@@ -169,7 +170,7 @@ fn http_client() -> Result<reqwest::blocking::Client, CliError> {
         // the loopback/HTTPS checks above never vetted.
         .no_proxy()
         .build()
-        .map_err(|err| CliError::new("error", format!("Could not initialise HTTP client: {err}")))
+        .map_err(|err| CliError::new("error", format!("Could not set up the HTTP client: {err}")))
 }
 
 /// Network-level failures (DNS, refused connection, TLS, timeout) come wrapped
@@ -215,7 +216,7 @@ fn api_error(status: reqwest::StatusCode, raw_body: &str) -> CliError {
         format!("HTTP {}: {detail}", status.as_u16())
     };
     if status == reqwest::StatusCode::NOT_FOUND {
-        message.push_str(" The API may have changed — update the CLI to the latest release.");
+        message.push_str(" The API may have changed. Update the CLI to the latest release.");
     }
     CliError::new("server_error", message)
 }
@@ -327,7 +328,7 @@ mod tests {
         assert_eq!(err.code, "server_error");
         assert_eq!(
             err.message,
-            "HTTP 404 The API may have changed — update the CLI to the latest release."
+            "HTTP 404 The API may have changed. Update the CLI to the latest release."
         );
     }
 }

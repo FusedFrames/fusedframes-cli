@@ -53,8 +53,8 @@ pub fn read_config() -> Config {
         // config — warn (on stderr, so JSON stdout stays clean) and continue
         // without it.
         crate::output::warn(&format!(
-            "Warning: config file at {} is not valid JSON and was ignored. \
-             Re-set your key with: echo \"ff_...\" | fusedframes config set-key",
+            "Warning: the config file at {} is not valid JSON, so the CLI skipped it. \
+             Set your key again with: echo \"ff_...\" | fusedframes config set-key",
             path.display()
         ));
         Config::default()
@@ -83,14 +83,18 @@ pub fn write_config(config: &Config) -> Result<(), CliError> {
     let Some(dir) = config_dir() else {
         return Err(CliError::new(
             "error",
-            "Could not determine the home directory to store configuration in.",
+            "Could not find your home folder to save settings in.",
         ));
     };
     create_private_dir(&dir)?;
 
     let path = dir.join("config.json");
-    let mut body = serde_json::to_string_pretty(config)
-        .map_err(|err| CliError::new("error", format!("Could not serialise config: {err}")))?;
+    let mut body = serde_json::to_string_pretty(config).map_err(|err| {
+        CliError::new(
+            "error",
+            format!("Could not turn the config into JSON: {err}"),
+        )
+    })?;
     body.push('\n');
 
     // Write to a same-directory temp file and rename it into place: the config
@@ -205,7 +209,7 @@ pub fn require_api_key() -> Result<String, CliError> {
     get_api_key().ok_or_else(|| {
         CliError::new(
             "config_error",
-            "API key not configured. Run: echo \"ff_...\" | fusedframes config set-key, \
+            "No API key is set. Run: echo \"ff_...\" | fusedframes config set-key, \
              or set the FUSEDFRAMES_API_KEY environment variable.",
         )
     })

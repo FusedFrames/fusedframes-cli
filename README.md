@@ -1,6 +1,6 @@
 # fusedframes-cli
 
-Query documents written by [FusedFrames](https://fusedframes.com) from your team's recorded work, straight from the command line. Designed for AI agents to traverse document libraries, follow relationships between documents and retrieve source recordings.
+Find and read the documents [FusedFrames](https://fusedframes.com) makes from your team's recorded work, straight from the command line. Designed for AI agents to explore document libraries, follow relationships between documents and retrieve source recordings.
 
 A single native binary written in Rust — no language runtime required. TLS trust comes from the operating system's certificate store, so enterprise CAs work out of the box.
 
@@ -91,7 +91,7 @@ fusedframes libraries tags <library-id>
 fusedframes libraries applications <library-id>
 ```
 
-### Query documents
+### Find documents
 
 List documents in a library with optional filters:
 
@@ -118,7 +118,7 @@ fusedframes documents source-recordings <document-id>
 
 Each source recording includes the original question, response and the formatted steps showing exactly what happened.
 
-### Traverse the graph
+### Follow the graph
 
 Get the full document graph for a library in a single call:
 
@@ -149,7 +149,7 @@ Edge labels describe the relationship between documents:
 
 ### Search
 
-Search across all accessible libraries:
+Search all the libraries you can see:
 
 ```bash
 fusedframes search "failed deployment"

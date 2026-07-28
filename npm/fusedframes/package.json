@@ -1,7 +1,7 @@
 {
   "name": "@fusedframes/cli",
   "version": "0.0.0-dev",
-  "description": "CLI for querying FusedFrames",
+  "description": "CLI for finding and reading your FusedFrames documents",
   "license": "MIT",
   "author": "FusedFrames <hello@fusedframes.com> (https://fusedframes.com)",
   "homepage": "https://fusedframes.com",
