@@ -8,9 +8,9 @@ use crate::cli::ConfigCommand;
 use crate::error::CliError;
 use crate::output;
 
-const ARGV_KEY_MESSAGE: &str = "API keys must not be passed as command-line arguments because they are saved in shell \
-     history and visible in process listings. Pipe the key via stdin instead: \
-     echo \"ff_...\" | fusedframes config set-key. Alternatively set the FUSEDFRAMES_API_KEY \
+const ARGV_KEY_MESSAGE: &str = "Don't put your API key in the command itself. Your shell saves it in history and \
+     other programs can see it. Pipe the key in instead: \
+     echo \"ff_...\" | fusedframes config set-key. Or set the FUSEDFRAMES_API_KEY \
      environment variable.";
 
 pub fn run(command: ConfigCommand) -> Result<(), CliError> {
@@ -32,7 +32,7 @@ fn set_key(rejected: &[String]) -> Result<(), CliError> {
 
     let key = read_key_from_stdin()?;
     if key.is_empty() {
-        return Err(CliError::new("validation_error", "No API key provided"));
+        return Err(CliError::new("validation_error", "No API key was given"));
     }
 
     let mut config = crate::config::read_config();
@@ -77,9 +77,9 @@ pub fn logout() -> Result<(), CliError> {
     crate::config::clear_api_key()?;
 
     let message = if had {
-        "Stored API key removed."
+        "Removed your saved API key."
     } else {
-        "No stored API key to remove."
+        "There was no saved API key to remove."
     };
 
     // The env var overrides the stored key, so clearing the file doesn't fully
@@ -89,8 +89,8 @@ pub fn logout() -> Result<(), CliError> {
         output::success(&json!({
             "success": true,
             "message": message,
-            "warning": "The FUSEDFRAMES_API_KEY environment variable is still set and takes \
-                        precedence over the stored key. Unset it in your shell to fully sign out.",
+            "warning": "The FUSEDFRAMES_API_KEY environment variable is still set. It wins over \
+                        the saved key. Unset it in your shell to fully sign out.",
         }));
     } else {
         output::success(&json!({ "success": true, "message": message }));

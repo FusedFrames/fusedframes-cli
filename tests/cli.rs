@@ -64,7 +64,7 @@ fn help_flag_exits_zero() {
         .assert()
         .success()
         .stdout(predicate::str::contains(
-            "Query documents FusedFrames writes from recorded work",
+            "Find and read the documents FusedFrames makes from your recorded work",
         ));
 }
 
@@ -216,8 +216,8 @@ fn set_key_rejects_keys_passed_as_arguments() {
     let body = stdout_json(&output);
     assert_eq!(body["error"]["code"], "validation_error");
     let message = body["error"]["message"].as_str().expect("message");
-    assert!(message.contains("shell history"));
-    assert!(message.contains("process listings"));
+    assert!(message.contains("Your shell saves it in history"));
+    assert!(message.contains("other programs can see it"));
     // The rejected key must not be written anywhere.
     assert!(!config_path(&home).exists());
 }
@@ -235,7 +235,7 @@ fn set_key_with_empty_stdin_is_a_validation_error() {
         .clone();
     let body = stdout_json(&output);
     assert_eq!(body["error"]["code"], "validation_error");
-    assert_eq!(body["error"]["message"], "No API key provided");
+    assert_eq!(body["error"]["message"], "No API key was given");
 }
 
 #[test]
@@ -347,7 +347,7 @@ fn corrupt_config_warns_on_stderr_and_continues() {
         .assert()
         .success()
         .stderr(predicate::str::contains(
-            "is not valid JSON and was ignored",
+            "is not valid JSON, so the CLI skipped it",
         ))
         .get_output()
         .clone();
@@ -367,7 +367,7 @@ fn logout_removes_the_stored_key_and_preserves_other_fields() {
         .assert()
         .success()
         .stdout(predicate::str::diff(
-            "{\"success\":true,\"message\":\"Stored API key removed.\"}\n",
+            "{\"success\":true,\"message\":\"Removed your saved API key.\"}\n",
         ));
 
     let config = read_config_file(&home);
@@ -385,7 +385,7 @@ fn logout_without_a_stored_key_says_so() {
         .get_output()
         .clone();
     let body = stdout_json(&output);
-    assert_eq!(body["message"], "No stored API key to remove.");
+    assert_eq!(body["message"], "There was no saved API key to remove.");
 }
 
 #[test]
@@ -401,12 +401,12 @@ fn logout_warns_when_the_env_key_is_still_set() {
         .get_output()
         .clone();
     let body = stdout_json(&output);
-    assert_eq!(body["message"], "Stored API key removed.");
+    assert_eq!(body["message"], "Removed your saved API key.");
     assert!(
         body["warning"]
             .as_str()
             .expect("warning")
-            .contains("takes precedence")
+            .contains("It wins over the saved key")
     );
 }
 
@@ -422,7 +422,7 @@ fn clear_key_is_an_alias_for_logout() {
         .get_output()
         .clone();
     let body = stdout_json(&output);
-    assert_eq!(body["message"], "Stored API key removed.");
+    assert_eq!(body["message"], "Removed your saved API key.");
 }
 
 // ─── Transport security ─────────────────────────────────────────────────────
@@ -444,7 +444,7 @@ fn missing_api_key_is_reported_before_any_request() {
         body["error"]["message"]
             .as_str()
             .expect("message")
-            .contains("API key not configured")
+            .contains("No API key is set")
     );
 }
 
@@ -866,7 +866,7 @@ fn not_found_suggests_updating_the_cli() {
         body["error"]["message"]
             .as_str()
             .expect("message")
-            .contains("update the CLI")
+            .contains("Update the CLI")
     );
 }
 
@@ -920,7 +920,7 @@ fn non_json_success_bodies_are_a_server_error() {
         body["error"]["message"]
             .as_str()
             .expect("message")
-            .contains("Invalid JSON in API response")
+            .contains("The API reply was not valid JSON")
     );
 }
 

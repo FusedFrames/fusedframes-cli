@@ -22,8 +22,8 @@ const key = `${process.platform} ${process.arch}`;
 const pkg = PLATFORM_PACKAGES[key];
 if (!pkg) {
   console.error(
-    `fusedframes: unsupported platform (${key}). ` +
-      `Prebuilt binaries for other platforms are at ${RELEASES_URL}.`
+    `fusedframes: there is no build for this platform (${key}). ` +
+      `You can get binaries for other platforms at ${RELEASES_URL}.`
   );
   process.exit(1);
 }
@@ -35,8 +35,8 @@ try {
 } catch {
   console.error(
     `fusedframes: the platform package ${pkg} is not installed. ` +
-      "It is installed automatically as an optional dependency — reinstall " +
-      "without --no-optional/--omit=optional, or download a binary from " +
+      "npm installs it for you as an optional dependency. Install again " +
+      "without --no-optional or --omit=optional, or download a binary from " +
       RELEASES_URL + "."
   );
   process.exit(1);
@@ -44,7 +44,7 @@ try {
 
 const result = spawnSync(binPath, process.argv.slice(2), { stdio: "inherit" });
 if (result.error) {
-  console.error(`fusedframes: failed to launch the native binary: ${result.error.message}`);
+  console.error(`fusedframes: could not start the native binary: ${result.error.message}`);
   process.exit(1);
 }
 if (result.signal) {

@@ -1,4 +1,5 @@
-//! FusedFrames CLI — query documents FusedFrames writes from recorded work.
+//! FusedFrames CLI: find and read the documents FusedFrames makes from your
+//! recorded work.
 //!
 //! A Rust rebuild of the original TypeScript CLI with an unchanged observable
 //! contract: every command prints a single line of JSON to stdout — the API
@@ -64,7 +65,7 @@ fn handle_parse_error(err: &clap::Error) -> ! {
                 .collect::<Vec<_>>()
                 .join(" ");
             if message.is_empty() {
-                message = "invalid arguments".to_string();
+                message = "the arguments are not valid".to_string();
             }
             output::error(&CliError::new("validation_error", message));
         }
