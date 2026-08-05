@@ -151,6 +151,9 @@ jobs:
       # Pre-release versions (v2.0.0-rc.1) publish under the "next" dist-tag,
       # so `npm install @fusedframes/cli` keeps resolving to the last stable
       # release — rehearse the pipeline without affecting users.
+      # A partially failed earlier attempt may have published some of the
+      # packages already; a version that is already live is skipped rather
+      # than an error, so the job publishes only what is missing.
       - name: Publish with provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -158,5 +161,11 @@ jobs:
           DIST_TAG=latest
           case "${GITHUB_REF_NAME#v}" in *-*) DIST_TAG=next;; esac
           for pkg in npm/out/platforms/*/ npm/out/meta/; do
+            name=$(node -p "require('$PWD/$pkg/package.json').name")
+            version=$(node -p "require('$PWD/$pkg/package.json').version")
+            if [ -n "$(npm view "$name@$version" version 2>/dev/null || true)" ]; then
+              echo "$name@$version is already on the registry - skipping"
+              continue
+            fi
             (cd "$pkg" && npm publish --provenance --access public --tag "$DIST_TAG")
           done
