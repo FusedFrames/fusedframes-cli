@@ -16,7 +16,7 @@ const PLATFORM_PACKAGES = {
   "win32 x64": "@fusedframes/cli-win32-x64",
 };
 
-const RELEASES_URL = "https://github.com/fusedframes/fusedframes-cli/releases";
+const RELEASES_URL = "https://github.com/FusedFrames/fusedframes-cli/releases";
 
 const key = `${process.platform} ${process.arch}`;
 const pkg = PLATFORM_PACKAGES[key];

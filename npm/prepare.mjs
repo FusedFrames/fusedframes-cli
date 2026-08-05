@@ -75,9 +75,9 @@ const shared = {
   homepage: "https://fusedframes.com",
   repository: {
     type: "git",
-    url: "https://github.com/fusedframes/fusedframes-cli.git",
+    url: "git+https://github.com/FusedFrames/fusedframes-cli.git",
   },
-  bugs: { url: "https://github.com/fusedframes/fusedframes-cli/issues" },
+  bugs: { url: "https://github.com/FusedFrames/fusedframes-cli/issues" },
 };
 
 for (const platform of PLATFORMS) {
