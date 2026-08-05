@@ -1,0 +1,31 @@
+{
+  "name": "@fusedframes/cli",
+  "version": "0.0.0-dev",
+  "description": "CLI for finding and reading your FusedFrames documents",
+  "license": "MIT",
+  "author": "FusedFrames <hello@fusedframes.com> (https://fusedframes.com)",
+  "homepage": "https://fusedframes.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fusedframes/fusedframes-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fusedframes/fusedframes-cli/issues"
+  },
+  "bin": {
+    "fusedframes": "bin/fusedframes.js"
+  },
+  "files": [
+    "bin"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "fusedframes",
+    "cli",
+    "documents",
+    "ai-agent"
+  ],
+  "optionalDependencies": {}
+}
