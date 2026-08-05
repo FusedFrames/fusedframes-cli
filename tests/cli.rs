@@ -15,6 +15,12 @@ fn cli(home: &tempfile::TempDir) -> Command {
     cmd.env("HOME", home.path());
     // Windows resolves the home directory from USERPROFILE instead.
     cmd.env("USERPROFILE", home.path());
+    // Windows: a child process without SYSTEMROOT cannot initialise Winsock
+    // (WSAEPROVIDERFAILEDINIT, os error 10106), so every request would fail
+    // before reaching the mock server. Harmless on Unix, where it is unset.
+    if let Ok(system_root) = std::env::var("SYSTEMROOT") {
+        cmd.env("SYSTEMROOT", system_root);
+    }
     cmd
 }
 
