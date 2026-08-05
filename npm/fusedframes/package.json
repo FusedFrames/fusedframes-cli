@@ -7,10 +7,10 @@
   "homepage": "https://fusedframes.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fusedframes/fusedframes-cli.git"
+    "url": "git+https://github.com/FusedFrames/fusedframes-cli.git"
   },
   "bugs": {
-    "url": "https://github.com/fusedframes/fusedframes-cli/issues"
+    "url": "https://github.com/FusedFrames/fusedframes-cli/issues"
   },
   "bin": {
     "fusedframes": "bin/fusedframes.js"
