@@ -14,25 +14,23 @@ concurrency:
 
 jobs:
   quality:
-    # Display names are decoupled from runner labels so the required-check
-    # contexts on main survive future runner swaps.
-    name: Format, Lint & Test (${{ matrix.name }})
+    name: Format, Lint & Test (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        # Linux and macOS run on Blacksmith runners (this needs the Blacksmith
+        # GitHub App installed on the org; without it jobs queue forever —
+        # drop the `runner` overrides to detach). `matrix.os` keeps the
+        # GitHub-hosted names so the required-check contexts in branch
+        # protection stay stable. Windows stays GitHub-hosted while
+        # Blacksmith's Windows runners are in public beta.
         include:
-          # Blacksmith runners (need the Blacksmith GitHub App installed on
-          # the org; without it jobs queue forever — revert to the GitHub
-          # ubuntu-latest/macos-latest labels to detach).
-          - name: linux
+          - os: ubuntu-latest
             runner: blacksmith-4vcpu-ubuntu-2404
-          - name: macos
+          - os: macos-latest
             runner: blacksmith-6vcpu-macos-latest
-          # Blacksmith's Windows runners are still public beta; stay on
-          # GitHub-hosted until they graduate.
-          - name: windows
-            runner: windows-latest
-    runs-on: ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner || matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
