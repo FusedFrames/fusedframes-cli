@@ -14,12 +14,25 @@ concurrency:
 
 jobs:
   quality:
-    name: Format, Lint & Test (${{ matrix.os }})
+    # Display names are decoupled from runner labels so the required-check
+    # contexts on main survive future runner swaps.
+    name: Format, Lint & Test (${{ matrix.name }})
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+        include:
+          # Blacksmith runners (need the Blacksmith GitHub App installed on
+          # the org; without it jobs queue forever — revert to the GitHub
+          # ubuntu-latest/macos-latest labels to detach).
+          - name: linux
+            runner: blacksmith-4vcpu-ubuntu-2404
+          - name: macos
+            runner: blacksmith-6vcpu-macos-latest
+          # Blacksmith's Windows runners are still public beta; stay on
+          # GitHub-hosted until they graduate.
+          - name: windows
+            runner: windows-latest
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -32,7 +45,7 @@ jobs:
 
   msrv:
     name: MSRV (1.88)
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
@@ -43,14 +56,14 @@ jobs:
 
   supply-chain:
     name: Supply chain (cargo-deny)
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
       - uses: EmbarkStudios/cargo-deny-action@v2
 
   npm-packaging:
     name: npm launcher syntax
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
       - run: node --check npm/fusedframes/bin/fusedframes.js
