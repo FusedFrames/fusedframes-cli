@@ -19,7 +19,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+        # The Linux leg runs on Blacksmith. `matrix.os` keeps the GitHub-hosted
+        # name so the required-check context "Format, Lint & Test (ubuntu-latest)"
+        # in branch protection stays stable.
+        include:
+          - os: ubuntu-latest
+            runner: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ${{ matrix.runner || matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -32,7 +38,7 @@ jobs:
 
   msrv:
     name: MSRV (1.88)
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
@@ -43,14 +49,14 @@ jobs:
 
   supply-chain:
     name: Supply chain (cargo-deny)
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
       - uses: EmbarkStudios/cargo-deny-action@v2
 
   npm-packaging:
     name: npm launcher syntax
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
       - run: node --check npm/fusedframes/bin/fusedframes.js
