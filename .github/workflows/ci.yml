@@ -19,17 +19,18 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        # Linux and macOS run on Blacksmith runners (this needs the Blacksmith
+        # All three legs run on Blacksmith runners (this needs the Blacksmith
         # GitHub App installed on the org; without it jobs queue forever —
         # drop the `runner` overrides to detach). `matrix.os` keeps the
         # GitHub-hosted names so the required-check contexts in branch
-        # protection stay stable. Windows stays GitHub-hosted while
-        # Blacksmith's Windows runners are in public beta.
+        # protection stay stable.
         include:
           - os: ubuntu-latest
             runner: blacksmith-4vcpu-ubuntu-2404
           - os: macos-latest
             runner: blacksmith-6vcpu-macos-latest
+          - os: windows-latest
+            runner: blacksmith-4vcpu-windows-2025 # public beta
     runs-on: ${{ matrix.runner || matrix.os }}
     steps:
       - uses: actions/checkout@v4
