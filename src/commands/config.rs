@@ -83,7 +83,7 @@ pub fn logout() -> Result<(), CliError> {
     };
 
     // The env var overrides the stored key, so clearing the file doesn't fully
-    // log you out while it's set — say so plainly.
+    // log you out while it's set, so say so plainly.
     let env_key_set = std::env::var("FUSEDFRAMES_API_KEY").is_ok_and(|value| !value.is_empty());
     if env_key_set {
         output::success(&json!({

@@ -1,10 +1,11 @@
 {
   "name": "@fusedframes/cli",
   "version": "0.0.0-dev",
+  "private": true,
   "description": "CLI for finding and reading your FusedFrames documents",
   "license": "MIT",
-  "author": "FusedFrames <hello@fusedframes.com> (https://fusedframes.com)",
-  "homepage": "https://fusedframes.com",
+  "author": "FusedFrames <hello@fusedframes.com> (https://www.fusedframes.com)",
+  "homepage": "https://www.fusedframes.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/FusedFrames/fusedframes-cli.git"

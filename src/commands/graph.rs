@@ -1,4 +1,4 @@
-//! `graph <libraryId>` — the full document graph for a library.
+//! `graph <libraryId>`: the full document graph for a library.
 
 use crate::client::request;
 use crate::error::CliError;

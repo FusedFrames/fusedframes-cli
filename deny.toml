@@ -1,7 +1,7 @@
 # Supply-chain policy, enforced in CI by cargo-deny
 # (https://github.com/EmbarkStudios/cargo-deny). Complements the release
 # workflow's build-provenance attestation: dependencies must come from
-# crates.io only, carry a permissive licence, and be free of known advisories.
+# crates.io only, carry a permissive licence and be free of known advisories.
 
 [graph]
 all-features = true

@@ -1,4 +1,4 @@
-//! `search <query>` — search documents in all the libraries you can see.
+//! `search <query>`: search documents in all the libraries you can see.
 
 use crate::client::request;
 use crate::error::CliError;

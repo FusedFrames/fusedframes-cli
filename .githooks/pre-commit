@@ -3,10 +3,10 @@ set -e
 
 # Enable with: git config core.hooksPath .githooks
 
-# Block direct commits to main/master and the v2-high integration branch.
+# Block direct commits to main/master.
 branch=$(git symbolic-ref --short HEAD 2>/dev/null)
 case "$branch" in
-  main|master|v2-high)
+  main|master)
     printf '\n\033[1;31mBlocked: direct commit to %s is not allowed.\033[0m\n\n' "$branch" >&2
     printf 'This repository is in production and publishes a public CLI.\n' >&2
     printf 'Create a feature branch first:\n\n' >&2

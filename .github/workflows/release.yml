@@ -6,9 +6,11 @@ on:
       - 'v*'
 
 permissions:
-  contents: write
-  id-token: write
-  attestations: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   verify:
@@ -37,6 +39,10 @@ jobs:
   build:
     name: Build (${{ matrix.target }})
     needs: verify
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     strategy:
       fail-fast: false
       matrix:
@@ -98,6 +104,8 @@ jobs:
   publish:
     name: Publish GitHub release
     needs: build
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -128,7 +136,13 @@ jobs:
 
   publish-npm:
     name: Publish to npm
-    needs: build
+    # Also needs the GitHub Release: the npm shim's "no build for this
+    # platform" message points people at the releases page, so npm must never
+    # go live before that page has the matching release on it.
+    needs: [build, publish]
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -150,7 +164,7 @@ jobs:
       # never goes live pointing at platform versions that don't exist yet.
       # Pre-release versions (v2.0.0-rc.1) publish under the "next" dist-tag,
       # so `npm install @fusedframes/cli` keeps resolving to the last stable
-      # release — rehearse the pipeline without affecting users.
+      # release, which lets you rehearse the pipeline without affecting users.
       # A partially failed earlier attempt may have published some of the
       # packages already; a version that is already live is skipped rather
       # than an error, so the job publishes only what is missing.

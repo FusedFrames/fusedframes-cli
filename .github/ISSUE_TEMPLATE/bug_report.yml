@@ -1,0 +1,56 @@
+name: Bug report
+description: Report something the CLI gets wrong
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: CLI version
+      description: The output of `fusedframes --version`.
+      placeholder: "2.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system and architecture
+      placeholder: macOS 15.5 arm64
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install it?
+      options:
+        - npm (@fusedframes/cli)
+        - Binary from a GitHub release
+        - cargo install
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: Command you ran
+      description: The exact command, with any API key removed.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: JSON output
+      description: The JSON the CLI printed on stdout, plus anything on stderr.
+      render: json
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true

@@ -6,7 +6,8 @@ rust-version = "1.88"
 description = "CLI for finding and reading your FusedFrames documents"
 license = "MIT"
 authors = ["FusedFrames <hello@fusedframes.com>"]
-homepage = "https://fusedframes.com"
+homepage = "https://www.fusedframes.com"
+documentation = "https://www.fusedframes.com/docs"
 repository = "https://github.com/FusedFrames/fusedframes-cli"
 readme = "README.md"
 keywords = ["fusedframes", "cli", "documents", "ai-agent"]
@@ -25,7 +26,7 @@ clap = { version = "4", features = ["derive", "wrap_help"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["preserve_order", "arbitrary_precision"] }
 # rustls (no OpenSSL), native OS trust roots so enterprise CAs work. The API
-# compresses responses when asked — gzip/brotli keep large graph payloads fast.
+# compresses responses when asked; gzip/brotli keep large graph payloads fast.
 reqwest = { version = "0.12", default-features = false, features = [
   "blocking",
   "rustls-tls-native-roots",
