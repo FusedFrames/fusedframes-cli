@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security report
+    url: mailto:support@fusedframes.com
+    about: Report a vulnerability privately by email. Never open a public issue for one.

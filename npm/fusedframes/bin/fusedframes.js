@@ -4,7 +4,7 @@
 // Thin npm launcher for the native FusedFrames CLI. npm installs exactly one
 // of the optionalDependencies platform packages (matched on os/cpu); this shim
 // resolves its binary and hands over argv, stdio and the exit code. All CLI
-// behaviour — including the JSON output contract — lives in the binary.
+// behaviour, including the JSON output contract, lives in the binary.
 
 const { spawnSync } = require("node:child_process");
 

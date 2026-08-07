@@ -2,7 +2,7 @@
 //!
 //! The API key lives either in the `FUSEDFRAMES_API_KEY` environment variable
 //! (which always wins) or in `~/.config/fusedframes/config.json`. The path is
-//! the same on every platform — deliberately not the XDG/OS-native config dir —
+//! the same on every platform (deliberately not the XDG/OS-native config dir)
 //! so configs written by earlier CLI versions carry over unchanged.
 //!
 //! The config file holds a plaintext key, so it is kept owner-only: the
@@ -50,7 +50,7 @@ pub fn read_config() -> Config {
         config_from_value(value)
     } else {
         // The file exists but is corrupt. Don't silently pretend there is no
-        // config — warn (on stderr, so JSON stdout stays clean) and continue
+        // config. Warn (on stderr, so JSON stdout stays clean) and continue
         // without it.
         crate::output::warn(&format!(
             "Warning: the config file at {} is not valid JSON, so the CLI skipped it. \
@@ -66,7 +66,7 @@ pub fn read_config() -> Config {
 /// Done by hand rather than via typed deserialization so that a malformed
 /// `apiKey` (wrong JSON type) never discards the rest of the file: the other
 /// fields must survive a rewrite by `set-key`/`logout` regardless. A
-/// non-string `apiKey` itself is dropped — both writers replace or remove it
+/// non-string `apiKey` itself is dropped: both writers replace or remove it
 /// anyway, and it could never authenticate.
 fn config_from_value(value: Value) -> Config {
     let Value::Object(mut map) = value else {
@@ -98,8 +98,8 @@ pub fn write_config(config: &Config) -> Result<(), CliError> {
     body.push('\n');
 
     // Write to a same-directory temp file and rename it into place: the config
-    // can never be observed truncated, and — because the temp file is created
-    // owner-only — the plaintext key is never on disk with looser permissions.
+    // can never be observed truncated, and, because the temp file is created
+    // owner-only, the plaintext key is never on disk with looser permissions.
     let tmp = dir.join(format!("config.json.{}.tmp", std::process::id()));
     write_private_file(&tmp, &body).map_err(|err| {
         CliError::new(
@@ -116,7 +116,7 @@ pub fn write_config(config: &Config) -> Result<(), CliError> {
     })?;
 
     // A directory or file that already existed may carry looser permissions
-    // (user-created, or restored from a backup that dropped perms) — force
+    // (user-created, or restored from a backup that dropped perms), so force
     // owner-only on every write. Best-effort: some filesystems (and Windows)
     // don't support Unix modes.
     harden_permissions(&dir, &path);
@@ -153,7 +153,7 @@ fn write_private_file(path: &Path, body: &str) -> std::io::Result<()> {
         options.mode(0o600);
     }
     // A stale temp file from a crashed earlier run (same pid, so vanishingly
-    // rare) would make `create_new` fail — clear it and retry once.
+    // rare) would make `create_new` fail, so clear it and retry once.
     let mut file = match options.open(path) {
         Ok(file) => file,
         Err(err) if err.kind() == std::io::ErrorKind::AlreadyExists => {
@@ -187,7 +187,7 @@ pub fn clear_api_key() -> Result<(), CliError> {
     write_config(&config)
 }
 
-/// An environment variable, with empty values counting as unset — the same
+/// An environment variable, with empty values counting as unset: the same
 /// semantics as JS truthiness in the TypeScript CLI.
 fn env_nonempty(name: &str) -> Option<String> {
     std::env::var(name).ok().filter(|value| !value.is_empty())
@@ -204,8 +204,8 @@ pub fn get_api_url() -> String {
 }
 
 pub fn require_api_key() -> Result<String, CliError> {
-    // A missing key is a configuration problem — same family as an invalid or
-    // non-HTTPS API URL.
+    // A missing key is a configuration problem, the same family as an invalid
+    // or non-HTTPS API URL.
     get_api_key().ok_or_else(|| {
         CliError::new(
             "config_error",

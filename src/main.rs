@@ -2,9 +2,9 @@
 //! recorded work.
 //!
 //! A Rust rebuild of the original TypeScript CLI with an unchanged observable
-//! contract: every command prints a single line of JSON to stdout — the API
+//! contract: every command prints a single line of JSON to stdout (the API
 //! response passed through verbatim on success, `{"error":{"code","message"}}`
-//! on failure — with exit code 0 on success and 1 on any error.
+//! on failure), with exit code 0 on success and 1 on any error.
 
 mod cli;
 mod client;

@@ -71,8 +71,8 @@ fs.rmSync(outDir, { recursive: true, force: true });
 
 const shared = {
   license: "MIT",
-  author: "FusedFrames <hello@fusedframes.com> (https://fusedframes.com)",
-  homepage: "https://fusedframes.com",
+  author: "FusedFrames <hello@fusedframes.com> (https://www.fusedframes.com)",
+  homepage: "https://www.fusedframes.com",
   repository: {
     type: "git",
     url: "git+https://github.com/FusedFrames/fusedframes-cli.git",
@@ -111,6 +111,7 @@ for (const platform of PLATFORMS) {
     path.join(dir, "package.json"),
     JSON.stringify(manifest, null, 2) + "\n"
   );
+  fs.copyFileSync(path.join(repoRoot, "LICENSE"), path.join(dir, "LICENSE"));
 }
 
 const metaDir = path.join(outDir, "meta");
@@ -119,6 +120,9 @@ const meta = JSON.parse(
   fs.readFileSync(path.join(npmDir, "fusedframes", "package.json"), "utf8")
 );
 meta.version = version;
+// The template in npm/fusedframes is marked private so its placeholder
+// version can never be published by accident; the real package is not.
+delete meta.private;
 meta.optionalDependencies = Object.fromEntries(
   PLATFORMS.map((platform) => [platform.pkg, version])
 );

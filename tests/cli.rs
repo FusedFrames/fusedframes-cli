@@ -1,5 +1,5 @@
 //! End-to-end tests: spawn the real `fusedframes` binary against a local mock
-//! API server and a temp-dir home, asserting the full observable contract —
+//! API server and a temp-dir home, asserting the full observable contract:
 //! JSON stdout, exit codes, request shapes, config file handling and the key
 //! hygiene rules. Plain-HTTP loopback URLs are an intentional carve-out in the
 //! client, which is what makes these tests possible without TLS fixtures.
@@ -934,7 +934,8 @@ fn non_json_success_bodies_are_a_server_error() {
 
 #[test]
 fn version_output_is_the_bare_version() {
-    // The TypeScript CLI printed just "2.0.0", no program-name prefix.
+    // The TypeScript CLI printed the bare version number with no program-name
+    // prefix; anything parsing `--version` still expects exactly that.
     let home = home();
     cli(&home)
         .arg("--version")

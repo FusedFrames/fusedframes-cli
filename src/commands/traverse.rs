@@ -1,4 +1,4 @@
-//! `traverse <documentId>` — follow edges from a document.
+//! `traverse <documentId>`: follow edges from a document.
 
 use crate::client::request;
 use crate::error::CliError;

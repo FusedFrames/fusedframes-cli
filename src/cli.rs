@@ -1,6 +1,6 @@
 //! Command-line definitions. Command names, option names and defaults mirror
 //! the TypeScript CLI so agents and scripts keep working unchanged. The help
-//! strings do not: they were rewritten in plain language for v2-high and no
+//! strings do not: they were rewritten in plain language for v2 and no
 //! longer match the old CLI word for word.
 //!
 //! Pagination, depth and direction values are deliberately plain strings

@@ -1,7 +1,7 @@
 //! HTTP client for the FusedFrames API: URL validation, request execution and
 //! error mapping.
 //!
-//! Responses are passed through as-is — the server's JSON (camelCase fields,
+//! Responses are passed through as-is: the server's JSON (camelCase fields,
 //! TypeID ids) is the contract, and the CLI must not reshape it. Parsing into
 //! `serde_json::Value` (with the `preserve_order` feature) validates the body
 //! is JSON while keeping fields in the order the server sent them, exactly as
@@ -46,7 +46,7 @@ pub fn request(segments: &[&str], params: &[(&str, Option<&str>)]) -> Result<Val
 
     // Require HTTPS so the API key is never sent in clear text. A plain-http
     // exemption is allowed ONLY for genuine loopback hosts, matched on the
-    // parsed host — a substring or prefix check would also accept hosts like
+    // parsed host. A substring or prefix check would also accept hosts like
     // `localhost.evil.com` or `http://localhost@evil.com` and leak the bearer
     // key to an attacker-controlled host.
     let loopback_http = parsed_base.scheme() == "http" && is_loopback(&parsed_base);
@@ -95,7 +95,7 @@ pub fn request(segments: &[&str], params: &[(&str, Option<&str>)]) -> Result<Val
 
 /// True when the URL's host is genuinely this machine: the literal `localhost`
 /// or a loopback IP. Slightly wider than the TypeScript CLI's exact-string
-/// check (`127.0.0.1`/`::1`) in that any 127.0.0.0/8 address qualifies — every
+/// check (`127.0.0.1`/`::1`) in that any 127.0.0.0/8 address qualifies. Every
 /// such address is loopback by definition, so the security boundary is
 /// unchanged.
 fn is_loopback(url: &Url) -> bool {
@@ -144,7 +144,7 @@ fn build_url(
 }
 
 fn http_client() -> Result<reqwest::blocking::Client, CliError> {
-    // Redirects may only land on HTTPS (or loopback plain-http) targets — a
+    // Redirects may only land on HTTPS (or loopback plain-http) targets: a
     // downgrade redirect must never cause the bearer key to travel in clear
     // text. reqwest additionally drops the Authorization header whenever a
     // redirect changes host.
