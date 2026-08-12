@@ -1,16 +1,19 @@
 //! FusedFrames CLI: find and read the documents FusedFrames makes from your
 //! recorded work.
 //!
-//! A Rust rebuild of the original TypeScript CLI with an unchanged observable
-//! contract: every command prints a single line of JSON to stdout (the API
-//! response passed through verbatim on success, `{"error":{"code","message"}}`
-//! on failure), with exit code 0 on success and 1 on any error.
+//! A Rust rebuild of the original TypeScript CLI. The machine-facing contract is
+//! unchanged: whenever stdout is not a terminal, every command prints a single line
+//! of JSON (the API response verbatim on success, `{"error":{"code","message"}}` on
+//! failure), exit 0 on success and 1 on any error. A person running the same command
+//! interactively gets that response rendered to read instead, and `--json` puts the
+//! machine format back.
 
 mod cli;
 mod client;
 mod commands;
 mod config;
 mod error;
+mod human;
 mod output;
 
 use clap::Parser;
@@ -19,6 +22,9 @@ use clap::error::ErrorKind;
 use crate::error::CliError;
 
 fn main() {
+    // Parse `--json` before anything can print, including a parse error.
+    output::init(cli::wants_json());
+
     match cli::Cli::try_parse() {
         Ok(parsed) => {
             if let Err(err) = commands::run(parsed) {

@@ -20,6 +20,19 @@ use clap::{Parser, Subcommand};
 pub struct Cli {
     #[command(subcommand)]
     pub command: Command,
+
+    /// Print raw JSON, even when running in a terminal
+    #[arg(long, global = true)]
+    pub json: bool,
+}
+
+/// Whether `--json` was passed, read straight from the raw arguments.
+///
+/// The output format has to be settled before clap runs, because a parse error is
+/// itself output and has to be printed in the right format. It is a plain flag with
+/// no value, so scanning for it cannot misread a neighbouring argument.
+pub fn wants_json() -> bool {
+    std::env::args().any(|arg| arg == "--json")
 }
 
 #[derive(Debug, Subcommand)]
@@ -34,6 +47,18 @@ pub enum Command {
     /// Remove the saved API key from this computer
     #[command(visible_alias = "clear-key")]
     Logout,
+
+    /// Check that your API key works and see what it can read
+    Whoami,
+
+    /// Print a completion script for your shell
+    ///
+    /// Add it to your shell so command and option names complete with Tab.
+    Completions {
+        /// bash, zsh, fish, elvish or powershell
+        #[arg(value_name = "shell")]
+        shell: clap_complete::Shell,
+    },
 
     /// Browse document libraries
     #[command(arg_required_else_help = true)]
