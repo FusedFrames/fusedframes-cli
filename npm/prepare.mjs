@@ -49,6 +49,14 @@ const PLATFORMS = [
     label: "Linux x86_64 (static)",
   },
   {
+    target: "aarch64-pc-windows-msvc",
+    pkg: "@fusedframes/cli-win32-arm64",
+    os: "win32",
+    cpu: "arm64",
+    archive: "zip",
+    label: "Windows arm64",
+  },
+  {
     target: "x86_64-pc-windows-msvc",
     pkg: "@fusedframes/cli-win32-x64",
     os: "win32",

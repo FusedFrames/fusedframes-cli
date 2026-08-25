@@ -18,7 +18,7 @@ Or install globally:
 npm install -g @fusedframes/cli
 ```
 
-npm delivers a prebuilt native binary for your platform (macOS arm64/x64, Linux x64/arm64, Windows x64). Node is only the delivery mechanism; the CLI itself is a single native executable.
+npm delivers a prebuilt native binary for your platform (macOS arm64/x64, Linux x64/arm64, Windows x64/arm64). Node is only the delivery mechanism; the CLI itself is a single native executable.
 
 ### Standalone binaries
 
@@ -29,7 +29,7 @@ tar -xzf fusedframes-v*-aarch64-apple-darwin.tar.gz
 sudo mv fusedframes /usr/local/bin/
 ```
 
-Prebuilt targets: macOS (Apple Silicon and Intel), Linux (x86_64 and arm64, fully static musl builds) and Windows (x86_64).
+Prebuilt targets: macOS (Apple Silicon and Intel), Linux (x86_64 and arm64, fully static musl builds) and Windows (x86_64 and arm64).
 
 Every release ships a `SHA256SUMS` file and [build provenance attestations](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations); npm packages are published with npm provenance. Verify a download with:
 
