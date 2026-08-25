@@ -47,6 +47,25 @@ jobs:
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
       - run: cargo check --locked --all-targets
 
+  # The release matrix only runs on a tag, so a target that does not build is
+  # not discovered until a release is already part-published. This one is the
+  # newest and the only one on an arm64 Windows runner, and it is built with
+  # the release profile the release job uses (LTO, panic=abort, strip), so a
+  # tag never meets it for the first time.
+  windows-arm64:
+    name: Release build (aarch64-pc-windows-msvc)
+    runs-on: windows-11-arm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master 2026-07
+        with:
+          toolchain: stable
+          targets: aarch64-pc-windows-msvc
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          key: aarch64-pc-windows-msvc
+      - run: cargo build --release --locked --target aarch64-pc-windows-msvc
+
   supply-chain:
     name: Supply chain (cargo-deny)
     runs-on: ubuntu-latest

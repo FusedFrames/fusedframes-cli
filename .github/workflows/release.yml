@@ -59,6 +59,11 @@ jobs:
             os: macos-latest
           - target: x86_64-pc-windows-msvc
             os: windows-latest
+          # Built natively on an arm64 runner rather than cross-compiled from
+          # the x64 image, so the binary that ships is the one the toolchain
+          # tested against. Free for public repositories.
+          - target: aarch64-pc-windows-msvc
+            os: windows-11-arm
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
