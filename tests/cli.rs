@@ -8,6 +8,13 @@ use assert_cmd::Command;
 use predicates::prelude::*;
 use serde_json::{Value, json};
 
+/// A well-formed key: `ff_` plus 64 hex characters. `set-key` validates the
+/// shape before saving, so anything piped into it in these tests has to be a
+/// real-looking key rather than a short placeholder.
+const SAMPLE_KEY: &str = "ff_1111111111111111111111111111111111111111111111111111111111111111";
+/// A second one, for the tests that overwrite an existing key.
+const OTHER_KEY: &str = "ff_2222222222222222222222222222222222222222222222222222222222222222";
+
 /// A fresh CLI process with a hermetic environment rooted in `home`.
 fn cli(home: &tempfile::TempDir) -> Command {
     let mut cmd = Command::cargo_bin("fusedframes").expect("binary builds");
@@ -144,7 +151,7 @@ fn set_key_reads_stdin_trims_and_saves() {
     let home = home();
     cli(&home)
         .args(["config", "set-key"])
-        .write_stdin("  ff_testkey123\n")
+        .write_stdin(format!("  {SAMPLE_KEY}\n"))
         .assert()
         .success()
         .stdout(predicate::str::diff(
@@ -152,7 +159,33 @@ fn set_key_reads_stdin_trims_and_saves() {
         ));
 
     let config = read_config_file(&home);
-    assert_eq!(config["apiKey"], "ff_testkey123");
+    assert_eq!(config["apiKey"], SAMPLE_KEY);
+}
+
+#[test]
+fn set_key_refuses_a_malformed_key_and_keeps_the_old_one() {
+    let home = home();
+    write_config(&home, &json!({ "apiKey": SAMPLE_KEY }));
+
+    // A half-pasted key: the failure has to arrive here, not later as an
+    // `unauthorised` on an unrelated command.
+    let output = cli(&home)
+        .args(["config", "set-key"])
+        .write_stdin(&SAMPLE_KEY[..40])
+        .output()
+        .expect("cli runs");
+    assert_eq!(output.status.code(), Some(1));
+
+    let body = stdout_json(&output);
+    assert_eq!(body["error"]["code"], "validation_error");
+    assert!(
+        body["error"]["message"]
+            .as_str()
+            .expect("message is a string")
+            .contains("37 characters after ff_")
+    );
+    // The key already stored has to survive a rejected write.
+    assert_eq!(read_config_file(&home)["apiKey"], SAMPLE_KEY);
 }
 
 #[cfg(unix)]
@@ -163,7 +196,7 @@ fn set_key_writes_owner_only_permissions() {
     let home = home();
     cli(&home)
         .args(["config", "set-key"])
-        .write_stdin("ff_testkey123")
+        .write_stdin(SAMPLE_KEY)
         .assert()
         .success();
 
@@ -185,7 +218,7 @@ fn set_key_tightens_pre_existing_loose_permissions() {
     use std::os::unix::fs::PermissionsExt;
 
     let home = home();
-    write_config(&home, &json!({ "apiKey": "ff_old" }));
+    write_config(&home, &json!({ "apiKey": SAMPLE_KEY }));
     let path = config_path(&home);
     std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o644)).expect("chmod");
     std::fs::set_permissions(
@@ -196,7 +229,7 @@ fn set_key_tightens_pre_existing_loose_permissions() {
 
     cli(&home)
         .args(["config", "set-key"])
-        .write_stdin("ff_new")
+        .write_stdin(OTHER_KEY)
         .assert()
         .success();
 
@@ -249,17 +282,17 @@ fn set_key_preserves_unknown_config_fields() {
     let home = home();
     write_config(
         &home,
-        &json!({ "apiKey": "ff_old", "future": { "keep": 1 } }),
+        &json!({ "apiKey": SAMPLE_KEY, "future": { "keep": 1 } }),
     );
 
     cli(&home)
         .args(["config", "set-key"])
-        .write_stdin("ff_new")
+        .write_stdin(OTHER_KEY)
         .assert()
         .success();
 
     let config = read_config_file(&home);
-    assert_eq!(config["apiKey"], "ff_new");
+    assert_eq!(config["apiKey"], OTHER_KEY);
     assert_eq!(config["future"]["keep"], 1);
 }
 

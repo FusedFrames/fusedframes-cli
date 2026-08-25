@@ -164,6 +164,28 @@ fusedframes search "export invoices" --app "Xero"
 fusedframes search "review" --library <library-id>
 ```
 
+### Check your key
+
+Confirm the key works and see what it can read:
+
+```bash
+fusedframes whoami
+```
+
+It names the key in use, where it came from, and every document library the key can reach with a document count for each. An expired, revoked or wrongly scoped key is obvious here rather than showing up later as an empty search.
+
+### Shell completions
+
+Complete commands and options with Tab:
+
+```bash
+fusedframes completions zsh > ~/.zsh/completions/_fusedframes   # zsh
+fusedframes completions bash > /etc/bash_completion.d/fusedframes
+fusedframes completions fish > ~/.config/fish/completions/fusedframes.fish
+```
+
+`elvish` and `powershell` are also supported.
+
 ### Log out
 
 Remove the saved API key from this computer:
@@ -187,7 +209,21 @@ Defaults: page 1, 20 results per page.
 
 ## Output
 
-All commands output JSON to stdout. Errors are also JSON:
+The format follows where the output is going.
+
+**Piped, redirected or captured** (a script, an agent, `| jq`, `> file`): one line of compact JSON, the API response passed through verbatim. That is the contract to build on and it does not change.
+
+**Straight to a terminal**: the same response rendered to read, with aligned tables and a document's steps laid out under its own section headings. It is the same data, not a subset.
+
+`--json` forces the machine format anywhere, which is what you want when checking by hand what a script will receive.
+
+```bash
+fusedframes libraries list          # a table, when you are at a terminal
+fusedframes libraries list --json   # one line of JSON, always
+fusedframes libraries list | jq     # JSON, because it is piped
+```
+
+Errors are the same JSON on stdout in machine mode, and a plain message on stderr for a person:
 
 ```json
 { "error": { "code": "unauthorised", "message": "Invalid or missing API key" } }
