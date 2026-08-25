@@ -25,16 +25,29 @@ npm delivers a prebuilt native binary for your platform (macOS arm64/x64, Linux 
 No Node? Download the binary for your platform from the [latest release](https://github.com/FusedFrames/fusedframes-cli/releases/latest), then place it on your `PATH`:
 
 ```bash
-tar -xzf fusedframes-v*-aarch64-apple-darwin.tar.gz
+tar -xzf fusedframes-v*-darwin-arm64.tar.gz
 sudo mv fusedframes /usr/local/bin/
 ```
 
-Prebuilt targets: macOS (Apple Silicon and Intel), Linux (x86_64 and arm64, fully static musl builds) and Windows (x86_64 and arm64).
+Assets are named for the platform and architecture Node reports, so the file you
+want matches the npm package you would otherwise have installed:
+
+| Machine | Asset |
+| --- | --- |
+| macOS, Apple Silicon | `fusedframes-v*-darwin-arm64.tar.gz` |
+| macOS, Intel | `fusedframes-v*-darwin-x64.tar.gz` |
+| Windows, arm64 | `fusedframes-v*-win32-arm64.zip` |
+| Windows, x86_64 | `fusedframes-v*-win32-x64.zip` |
+| Linux, arm64 | `fusedframes-v*-linux-arm64.tar.gz` |
+| Linux, x86_64 | `fusedframes-v*-linux-x64.tar.gz` |
+
+The Linux builds are fully static musl binaries, so they run on any distribution
+with no glibc dependency, Alpine included.
 
 Every release ships a `SHA256SUMS` file and [build provenance attestations](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations); npm packages are published with npm provenance. Verify a download with:
 
 ```bash
-gh attestation verify fusedframes-v*-aarch64-apple-darwin.tar.gz --repo FusedFrames/fusedframes-cli
+gh attestation verify fusedframes-v*-darwin-arm64.tar.gz --repo FusedFrames/fusedframes-cli
 ```
 
 For an npm install, verify the registry signatures and provenance attestations with:

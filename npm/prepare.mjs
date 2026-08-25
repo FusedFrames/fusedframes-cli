@@ -18,6 +18,7 @@ import { fileURLToPath } from "node:url";
 const PLATFORMS = [
   {
     target: "aarch64-apple-darwin",
+    slug: "darwin-arm64",
     pkg: "@fusedframes/cli-darwin-arm64",
     os: "darwin",
     cpu: "arm64",
@@ -26,6 +27,7 @@ const PLATFORMS = [
   },
   {
     target: "x86_64-apple-darwin",
+    slug: "darwin-x64",
     pkg: "@fusedframes/cli-darwin-x64",
     os: "darwin",
     cpu: "x64",
@@ -34,6 +36,7 @@ const PLATFORMS = [
   },
   {
     target: "aarch64-unknown-linux-musl",
+    slug: "linux-arm64",
     pkg: "@fusedframes/cli-linux-arm64",
     os: "linux",
     cpu: "arm64",
@@ -42,6 +45,7 @@ const PLATFORMS = [
   },
   {
     target: "x86_64-unknown-linux-musl",
+    slug: "linux-x64",
     pkg: "@fusedframes/cli-linux-x64",
     os: "linux",
     cpu: "x64",
@@ -50,6 +54,7 @@ const PLATFORMS = [
   },
   {
     target: "aarch64-pc-windows-msvc",
+    slug: "win32-arm64",
     pkg: "@fusedframes/cli-win32-arm64",
     os: "win32",
     cpu: "arm64",
@@ -58,6 +63,7 @@ const PLATFORMS = [
   },
   {
     target: "x86_64-pc-windows-msvc",
+    slug: "win32-x64",
     pkg: "@fusedframes/cli-win32-x64",
     os: "win32",
     cpu: "x64",
@@ -95,7 +101,7 @@ for (const platform of PLATFORMS) {
 
   const archive = path.join(
     artifactDir,
-    `fusedframes-v${version}-${platform.target}.${platform.archive}`
+    `fusedframes-v${version}-${platform.slug}.${platform.archive}`
   );
   const binName = platform.os === "win32" ? "fusedframes.exe" : "fusedframes";
   if (platform.archive === "zip") {

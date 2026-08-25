@@ -49,20 +49,32 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # `target` is the Rust triple and drives the build. `slug` names the
+          # published archive: it is the platform and arch pair Node reports
+          # and npm matches on, so an asset filename and its npm platform
+          # package carry the same string, linux-x64 for
+          # @fusedframes/cli-linux-x64. The triple stays out of the filename
+          # because nobody downloading a binary needs to read an ABI tuple.
           - target: x86_64-unknown-linux-musl
+            slug: linux-x64
             os: ubuntu-latest
           - target: aarch64-unknown-linux-musl
+            slug: linux-arm64
             os: ubuntu-24.04-arm
           - target: x86_64-apple-darwin
+            slug: darwin-x64
             os: macos-latest
           - target: aarch64-apple-darwin
+            slug: darwin-arm64
             os: macos-latest
           - target: x86_64-pc-windows-msvc
+            slug: win32-x64
             os: windows-latest
           # Built natively on an arm64 runner rather than cross-compiled from
           # the x64 image, so the binary that ships is the one the toolchain
           # tested against. Free for public repositories.
           - target: aarch64-pc-windows-msvc
+            slug: win32-arm64
             os: windows-11-arm
     runs-on: ${{ matrix.os }}
     steps:
@@ -87,7 +99,7 @@ jobs:
       - name: Package (unix)
         if: runner.os != 'Windows'
         run: |
-          ARCHIVE="fusedframes-${GITHUB_REF_NAME}-${{ matrix.target }}.tar.gz"
+          ARCHIVE="fusedframes-${GITHUB_REF_NAME}-${{ matrix.slug }}.tar.gz"
           tar -czf "$ARCHIVE" -C "target/${{ matrix.target }}/release" fusedframes
           echo "ARCHIVE=$ARCHIVE" >> "$GITHUB_ENV"
 
@@ -95,7 +107,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $archive = "fusedframes-$env:GITHUB_REF_NAME-${{ matrix.target }}.zip"
+          $archive = "fusedframes-$env:GITHUB_REF_NAME-${{ matrix.slug }}.zip"
           Compress-Archive -Path "target/${{ matrix.target }}/release/fusedframes.exe" -DestinationPath $archive
           "ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Append
 
