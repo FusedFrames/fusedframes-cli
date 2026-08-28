@@ -297,7 +297,7 @@ A typical agent workflow:
 1. `fusedframes search "deployment failure"` to find relevant documents
 2. `fusedframes documents get <id>` to read the full document and its edges
 3. `fusedframes traverse <id> --depth 2` to explore related documents
-4. `fusedframes documents source-recordings <id>` to see the raw recordings the document is based on
+4. `fusedframes documents source-recordings <id>` to see the recordings the document is based on
 
 The agent uses document edges to navigate between related behaviours and build context about how your team works.
 
