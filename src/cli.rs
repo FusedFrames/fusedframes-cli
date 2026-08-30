@@ -1,7 +1,7 @@
-//! Command-line definitions. Command names, option names and defaults mirror
-//! the TypeScript CLI so agents and scripts keep working unchanged. The help
-//! strings do not: they were rewritten in plain language for v2 and no
-//! longer match the old CLI word for word.
+//! Command-line definitions. Option names and defaults mirror the TypeScript
+//! CLI, so the flags and their values are unchanged. The command names and help
+//! strings do not: the written artifact is a guide, so the command group is
+//! `guides`, and the help was rewritten in plain language for v2.
 //!
 //! Pagination, depth and direction values are deliberately plain strings
 //! passed through to the API: the server is the single source of truth for
@@ -14,7 +14,10 @@ use clap::{Parser, Subcommand};
 #[command(
     name = "fusedframes",
     version,
-    about = "Find and read the documents FusedFrames makes from your recorded work",
+    about = "Find and read the guides FusedFrames makes from your recorded work",
+    after_help = "The hosted MCP server at mcp.fusedframes.com is the primary way to \
+                  connect your agent. This CLI is the shell-based alternative for \
+                  agents that work over shell commands.",
     arg_required_else_help = true
 )]
 pub struct Cli {
@@ -60,30 +63,30 @@ pub enum Command {
         shell: clap_complete::Shell,
     },
 
-    /// Browse document libraries
+    /// Browse guide libraries
     #[command(arg_required_else_help = true)]
     Libraries {
         #[command(subcommand)]
         command: LibrariesCommand,
     },
 
-    /// Find documents
+    /// Find guides
     #[command(arg_required_else_help = true)]
-    Documents {
+    Guides {
         #[command(subcommand)]
-        command: DocumentsCommand,
+        command: GuidesCommand,
     },
 
-    /// Get the full document graph for a library
+    /// Get the full guide graph for a library
     Graph {
         #[arg(value_name = "libraryId")]
         library_id: String,
     },
 
-    /// Follow the edges from a document
+    /// Follow the edges from a guide
     Traverse {
-        #[arg(value_name = "documentId")]
-        document_id: String,
+        #[arg(value_name = "guideId")]
+        guide_id: String,
         /// Which way to follow edges (outgoing, incoming, both)
         #[arg(
             long,
@@ -105,7 +108,7 @@ pub enum Command {
         depth: String,
     },
 
-    /// Search documents in all the libraries you can see
+    /// Search guides in all the libraries you can see
     Search {
         #[arg(value_name = "query")]
         query: String,
@@ -156,24 +159,24 @@ pub enum ConfigCommand {
 
 #[derive(Debug, Subcommand)]
 pub enum LibrariesCommand {
-    /// List all the document libraries you can see
+    /// List all the guide libraries you can see
     List,
-    /// Get document library detail
+    /// Get guide library detail
     Get {
         #[arg(value_name = "id")]
         id: String,
     },
-    /// List categories with document counts
+    /// List categories with guide counts
     Categories {
         #[arg(value_name = "id")]
         id: String,
     },
-    /// List tags with document counts
+    /// List tags with guide counts
     Tags {
         #[arg(value_name = "id")]
         id: String,
     },
-    /// List applications with document counts
+    /// List applications with guide counts
     Applications {
         #[arg(value_name = "id")]
         id: String,
@@ -181,8 +184,8 @@ pub enum LibrariesCommand {
 }
 
 #[derive(Debug, Subcommand)]
-pub enum DocumentsCommand {
-    /// List documents in a library
+pub enum GuidesCommand {
+    /// List guides in a library
     List {
         #[arg(value_name = "libraryId")]
         library_id: String,
@@ -215,12 +218,15 @@ pub enum DocumentsCommand {
         )]
         page_size: String,
     },
-    /// Get the full document, with its edges included
+    /// Get the full guide, with its edges included
     Get {
         #[arg(value_name = "id")]
         id: String,
     },
-    /// Get the source recordings behind a document
+    /// Get the source recordings behind a guide
+    ///
+    /// On every plan your API key reads the steps and answers from your own
+    /// recordings. Other people's recordings never appear.
     SourceRecordings {
         #[arg(value_name = "id")]
         id: String,

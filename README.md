@@ -1,6 +1,8 @@
 # fusedframes-cli
 
-Find and read the documents [FusedFrames](https://www.fusedframes.com) makes from your team's recorded work, straight from the command line. Designed for AI agents to explore document libraries, follow relationships between documents and retrieve source recordings.
+Your agent does the task the way you do it. [FusedFrames](https://www.fusedframes.com) turns your recorded work into guides, and this CLI lets any agent that can run shell commands read those guides, follow the links between them and pull your own source recordings for extra detail.
+
+The hosted MCP server at `mcp.fusedframes.com` is the primary way to connect an agent. This CLI is the shell-based alternative for agents that work over shell commands.
 
 A single native binary written in Rust, with no language runtime required. TLS trust comes from the operating system's certificate store, so enterprise CAs work out of the box.
 
@@ -88,9 +90,11 @@ fusedframes config show
 
 ## Commands
 
+A guide is what FusedFrames writes from your recorded work, so `guides` is the command group that reads them.
+
 ### Browse libraries
 
-List all document libraries your API key has access to:
+List all the guide libraries your API key can see:
 
 ```bash
 fusedframes libraries list
@@ -110,55 +114,63 @@ fusedframes libraries tags <library-id>
 fusedframes libraries applications <library-id>
 ```
 
-### Find documents
+### Find guides
 
-List documents in a library with optional filters:
-
-```bash
-fusedframes documents list <library-id>
-fusedframes documents list <library-id> --category "Deployment"
-fusedframes documents list <library-id> --tag "rollback" --app "Terminal"
-fusedframes documents list <library-id> --search "failed health check"
-```
-
-Get full detail for a document, including its relationships:
+List guides in a library with optional filters:
 
 ```bash
-fusedframes documents get <document-id>
+fusedframes guides list <library-id>
+fusedframes guides list <library-id> --category "Deployment"
+fusedframes guides list <library-id> --tag "rollback" --app "Terminal"
+fusedframes guides list <library-id> --search "failed health check"
 ```
 
-This returns the document's structured content (for the default library structure: behaviour, reasoning, trigger, outcome and standard operating procedure steps), the library schema that shapes it, its category, tags and all incoming and outgoing edges to other documents.
-
-Get the source recordings a document is based on:
+Get full detail for a guide, including its relationships:
 
 ```bash
-fusedframes documents source-recordings <document-id>
+fusedframes guides get <guide-id>
 ```
 
-Each source recording includes the original question, response and the formatted steps showing exactly what happened.
+This returns the guide's content, the schema that shapes it, its category, tags and all incoming and outgoing edges to other guides. Every guide has the same fixed structure:
+
+| Section | What it holds |
+|---|---|
+| Trigger | When the guide applies and when it does not |
+| Steps | What to do, in order |
+| Rules | The judgement notes that shape the steps |
+| Scenarios | Links to guides for variant cases |
+| Boundaries | When to stop and ask |
+
+Get the source recordings a guide is based on:
+
+```bash
+fusedframes guides source-recordings <guide-id>
+```
+
+Each source recording includes the original question, response and the formatted steps showing exactly what happened. Recordings are private: on every plan your API key reads the steps and answers from your own recordings, and other people's recordings never appear.
 
 ### Follow the graph
 
-Get the full document graph for a library in a single call:
+Get the full guide graph for a library in a single call:
 
 ```bash
 fusedframes graph <library-id>
 ```
 
-Returns all documents and all edges. Useful for building a complete picture of a library.
+Returns all guides and all edges. Useful for building a complete picture of a library.
 
-Follow relationships from a specific document:
+Follow relationships from a specific guide:
 
 ```bash
-fusedframes traverse <document-id>
-fusedframes traverse <document-id> --depth 2
-fusedframes traverse <document-id> --direction outgoing --label "often next"
-fusedframes traverse <document-id> --depth 3 --direction both
+fusedframes traverse <guide-id>
+fusedframes traverse <guide-id> --depth 2
+fusedframes traverse <guide-id> --direction outgoing --label "often next"
+fusedframes traverse <guide-id> --depth 3 --direction both
 ```
 
-Depth controls how many levels of connected documents to follow (1-3). Direction can be `outgoing`, `incoming` or `both`. The server validates depth and direction, not the CLI; the values pass through unchanged and an invalid one comes back as the API's own `bad_request` error.
+Depth controls how many levels of connected guides to follow (1-3). Direction can be `outgoing`, `incoming` or `both`. The server validates depth and direction, not the CLI; the values pass through unchanged and an invalid one comes back as the API's own `bad_request` error.
 
-Edge labels describe the relationship between documents:
+Edge labels describe the relationship between guides:
 
 | Label | Meaning |
 |---|---|
@@ -185,7 +197,7 @@ Confirm the key works and see what it can read:
 fusedframes whoami
 ```
 
-It names the key in use, where it came from, and every document library the key can reach with a document count for each. An expired, revoked or wrongly scoped key is obvious here rather than showing up later as an empty search.
+It names the key in use and where it came from, then lists every guide library the key can reach with a guide count for each. An expired, revoked or wrongly scoped key shows up straight away rather than later as an empty search.
 
 ### Shell completions
 
@@ -211,11 +223,11 @@ fusedframes logout
 
 ## Pagination
 
-`documents list`, `documents source-recordings` and `search` support `--page` and `--page-size`:
+`guides list`, `guides source-recordings` and `search` support `--page` and `--page-size`:
 
 ```bash
-fusedframes documents list <library-id> --page 2 --page-size 50
-fusedframes documents source-recordings <document-id> --page 1 --page-size 10
+fusedframes guides list <library-id> --page 2 --page-size 50
+fusedframes guides source-recordings <guide-id> --page 1 --page-size 10
 ```
 
 Defaults: page 1, 20 results per page.
@@ -226,7 +238,7 @@ The format follows where the output is going.
 
 **Piped, redirected or captured** (a script, an agent, `| jq`, `> file`): one line of compact JSON, the API response passed through verbatim. That is the contract to build on and it does not change.
 
-**Straight to a terminal**: the same response rendered to read, with aligned tables and a document's steps laid out under its own section headings. It is the same data, not a subset.
+**Straight to a terminal**: the same response rendered to read, with aligned tables and a guide's steps laid out under its own section headings. It is the same data, not a subset.
 
 `--json` forces the machine format anywhere, which is what you want when checking by hand what a script will receive.
 
@@ -244,7 +256,7 @@ Errors are the same JSON on stdout in machine mode, and a plain message on stder
 
 Exit codes: `0` for success, `1` for errors (including invalid arguments).
 
-One exception: a bare `fusedframes`, or a bare subcommand group such as `fusedframes documents`, prints the help text and exits `1` without any JSON. `--help` and `--version` print their usual output and exit `0`.
+One exception: a bare `fusedframes`, or a bare subcommand group such as `fusedframes guides`, prints the help text and exits `1` without any JSON. `--help` and `--version` print their usual output and exit `0`.
 
 ### Error codes
 
@@ -290,16 +302,16 @@ Environment variables take precedence over the config file.
 
 ## AI agent usage
 
-This CLI is designed to be called by AI agents (Claude Code, Cursor, Windsurf, Codex) via shell commands. Each command returns structured JSON that the agent can parse and act on.
+This CLI is built to be called by AI agents (Claude Code, Cursor, Windsurf, Codex) via shell commands. Each command returns structured JSON that the agent can parse and act on. If your agent speaks MCP, the hosted server at `mcp.fusedframes.com` is the primary connection; use the CLI when shell commands are what your agent has.
 
 A typical agent workflow:
 
-1. `fusedframes search "deployment failure"` to find relevant documents
-2. `fusedframes documents get <id>` to read the full document and its edges
-3. `fusedframes traverse <id> --depth 2` to explore related documents
-4. `fusedframes documents source-recordings <id>` to see the recordings the document is based on
+1. `fusedframes search "deployment failure"` to find relevant guides
+2. `fusedframes guides get <id>` to read the full guide and its edges
+3. `fusedframes traverse <id> --depth 2` to explore related guides
+4. `fusedframes guides source-recordings <id>` to pull your own recordings behind the guide
 
-The agent uses document edges to navigate between related behaviours and build context about how your team works.
+The agent follows guide edges to move between related guides, so it can do the task your way, exceptions included.
 
 ## Requirements
 

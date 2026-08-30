@@ -1,13 +1,13 @@
-//! `documents list|get|source-recordings`.
+//! `guides list|get|source-recordings`.
 
-use crate::cli::DocumentsCommand;
+use crate::cli::GuidesCommand;
 use crate::client::request;
 use crate::error::CliError;
 use crate::output;
 
-pub fn run(command: DocumentsCommand) -> Result<(), CliError> {
+pub fn run(command: GuidesCommand) -> Result<(), CliError> {
     let data = match command {
-        DocumentsCommand::List {
+        GuidesCommand::List {
             library_id,
             category,
             tag,
@@ -16,7 +16,7 @@ pub fn run(command: DocumentsCommand) -> Result<(), CliError> {
             page,
             page_size,
         } => request(
-            &["libraries", &library_id, "documents"],
+            &["libraries", &library_id, "guides"],
             &[
                 ("category", category.as_deref()),
                 ("tag", tag.as_deref()),
@@ -26,13 +26,13 @@ pub fn run(command: DocumentsCommand) -> Result<(), CliError> {
                 ("pageSize", Some(page_size.as_str())),
             ],
         )?,
-        DocumentsCommand::Get { id } => request(&["documents", &id], &[])?,
-        DocumentsCommand::SourceRecordings {
+        GuidesCommand::Get { id } => request(&["guides", &id], &[])?,
+        GuidesCommand::SourceRecordings {
             id,
             page,
             page_size,
         } => request(
-            &["documents", &id, "source-recordings"],
+            &["guides", &id, "source-recordings"],
             &[
                 ("page", Some(page.as_str())),
                 ("pageSize", Some(page_size.as_str())),

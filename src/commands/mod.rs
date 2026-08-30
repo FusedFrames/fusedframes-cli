@@ -3,8 +3,8 @@
 //! TypeScript CLI.
 
 mod config;
-mod documents;
 mod graph;
+mod guides;
 mod libraries;
 mod search;
 mod traverse;
@@ -33,14 +33,14 @@ pub fn run(cli: Cli) -> Result<(), CliError> {
             Ok(())
         }
         Command::Libraries { command } => libraries::run(command),
-        Command::Documents { command } => documents::run(command),
+        Command::Guides { command } => guides::run(command),
         Command::Graph { library_id } => graph::run(&library_id),
         Command::Traverse {
-            document_id,
+            guide_id,
             direction,
             label,
             depth,
-        } => traverse::run(&document_id, &direction, label.as_deref(), &depth),
+        } => traverse::run(&guide_id, &direction, label.as_deref(), &depth),
         Command::Search {
             query,
             category,

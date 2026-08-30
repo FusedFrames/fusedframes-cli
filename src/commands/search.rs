@@ -1,4 +1,4 @@
-//! `search <query>`: search documents in all the libraries you can see.
+//! `search <query>`: search guides in all the libraries you can see.
 
 use crate::client::request;
 use crate::error::CliError;
@@ -16,7 +16,7 @@ pub struct Params {
 
 pub fn run(params: &Params) -> Result<(), CliError> {
     let data = request(
-        &["search", "documents"],
+        &["search", "guides"],
         &[
             ("q", Some(params.query.as_str())),
             ("category", params.category.as_deref()),

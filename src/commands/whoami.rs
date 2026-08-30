@@ -23,9 +23,9 @@ pub fn run() -> Result<(), CliError> {
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default();
-    let documents: i64 = libraries
+    let guides: i64 = libraries
         .iter()
-        .filter_map(|library| library.get("documentCount").and_then(Value::as_i64))
+        .filter_map(|library| library.get("guideCount").and_then(Value::as_i64))
         .sum();
 
     output::success(&json!({
@@ -34,13 +34,13 @@ pub fn run() -> Result<(), CliError> {
         "apiKeySource": settings.get("apiKeySource"),
         "apiUrl": settings.get("apiUrl"),
         "libraryCount": libraries.len(),
-        "documentCount": documents,
+        "guideCount": guides,
         "libraries": libraries
             .iter()
             .map(|library| json!({
                 "id": library.get("id"),
                 "name": library.get("name"),
-                "documentCount": library.get("documentCount"),
+                "guideCount": library.get("guideCount"),
             }))
             .collect::<Vec<_>>(),
     }));

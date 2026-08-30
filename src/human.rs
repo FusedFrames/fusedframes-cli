@@ -20,7 +20,7 @@ const INDENT: &str = "  ";
 /// the caller should print indented JSON instead.
 pub fn render(value: &Value) -> Option<String> {
     let object = value.as_object()?;
-    // Ordered most specific first: a search response also has `documents`, and a
+    // Ordered most specific first: a search response also has `guides`, and a
     // whoami response also has `libraries`.
     if object.contains_key("ok") && object.contains_key("libraryCount") {
         return Some(whoami(value));
@@ -34,16 +34,16 @@ pub fn render(value: &Value) -> Option<String> {
     if object.contains_key("nodes") && object.contains_key("edges") {
         return Some(traverse(value));
     }
-    if object.contains_key("documents") && object.contains_key("edges") {
+    if object.contains_key("guides") && object.contains_key("edges") {
         return Some(graph(value));
     }
-    if object.contains_key("documents") {
-        return Some(document_list(value));
+    if object.contains_key("guides") {
+        return Some(guide_list(value));
     }
-    // Before the vocabulary lists: a document carries its own `tags` array, and
+    // Before the vocabulary lists: a guide carries its own `tags` array, and
     // would otherwise be mistaken for one.
     if object.contains_key("content") && object.contains_key("title") {
-        return Some(document_detail(value));
+        return Some(guide_detail(value));
     }
     if let Some(rendered) = name_counts(value) {
         return Some(rendered);
@@ -91,7 +91,7 @@ fn strings(value: &Value, key: &str) -> Vec<String> {
         .collect()
 }
 
-/// "1 document" / "4 documents", so no line ever reads "1 documents".
+/// "1 guide" / "4 guides", so no line ever reads "1 guides".
 ///
 /// Adding an "s" is only right for the regular nouns used here. Anything else
 /// (a library, a noun with a trailing phrase) spells both forms out via
@@ -174,18 +174,18 @@ fn wrap(text: &str, indent: &str, width: usize) -> String {
 fn libraries(value: &Value) -> String {
     let items = list_at(value, "libraries");
     if items.is_empty() {
-        return "No document libraries. This API key cannot see any.".into();
+        return "No guide libraries. This API key cannot see any.".into();
     }
     let mut rows = vec![vec![
         "NAME".into(),
-        "DOCUMENTS".into(),
+        "GUIDES".into(),
         "CATEGORIES".into(),
         "ID".into(),
     ]];
     for library in items {
         rows.push(vec![
             str_at(library, "name").unwrap_or("(untitled)").to_string(),
-            count_at(library, "documentCount").unwrap_or(0).to_string(),
+            count_at(library, "guideCount").unwrap_or(0).to_string(),
             {
                 let categories = strings(library, "categories");
                 if categories.is_empty() {
@@ -199,11 +199,7 @@ fn libraries(value: &Value) -> String {
     }
     format!(
         "{}\n\n{}",
-        plural_of(
-            count_of(items.len()),
-            "document library",
-            "document libraries"
-        ),
+        plural_of(count_of(items.len()), "guide library", "guide libraries"),
         table(&rows)
     )
 }
@@ -216,13 +212,10 @@ fn library_detail(value: &Value) -> String {
     out.push(String::new());
     let mut facts = vec![format!(
         "{INDENT}{}",
-        plural(count_at(value, "documentCount").unwrap_or(0), "document")
+        plural(count_at(value, "guideCount").unwrap_or(0), "guide")
     )];
     if let Some(edges) = count_at(value, "edgeCount") {
-        facts.push(format!(
-            "{INDENT}{} between documents",
-            plural(edges, "link")
-        ));
+        facts.push(format!("{INDENT}{} between guides", plural(edges, "link")));
     }
     let categories = strings(value, "categories");
     if !categories.is_empty() {
@@ -239,8 +232,8 @@ fn library_detail(value: &Value) -> String {
     out.join("\n")
 }
 
-/// The `{name, documentCount}` vocabulary lists. Matched on the SHAPE of the
-/// entries, not just the key: a document also has a `tags` array, but of bare
+/// The `{name, guideCount}` vocabulary lists. Matched on the SHAPE of the
+/// entries, not just the key: a guide also has a `tags` array, but of bare
 /// strings rather than counted names.
 fn name_counts(value: &Value) -> Option<String> {
     let key = ["categories", "tags", "applications"]
@@ -249,7 +242,7 @@ fn name_counts(value: &Value) -> Option<String> {
             value.get(k).and_then(Value::as_array).is_some_and(|items| {
                 items
                     .first()
-                    .is_none_or(|first| first.get("documentCount").is_some())
+                    .is_none_or(|first| first.get("guideCount").is_some())
             })
         })?;
     let label = key;
@@ -257,37 +250,37 @@ fn name_counts(value: &Value) -> Option<String> {
     if items.is_empty() {
         return Some(format!("No {label}."));
     }
-    let mut rows = vec![vec![label.to_uppercase(), "DOCUMENTS".into()]];
+    let mut rows = vec![vec![label.to_uppercase(), "GUIDES".into()]];
     for item in items {
         rows.push(vec![
             str_at(item, "name").unwrap_or("-").to_string(),
-            count_at(item, "documentCount").unwrap_or(0).to_string(),
+            count_at(item, "guideCount").unwrap_or(0).to_string(),
         ]);
     }
     Some(table(&rows))
 }
 
-/// One document as a two-line entry: what it is, then how to reach it.
-fn document_line(document: &Value) -> Vec<String> {
+/// One guide as a two-line entry: what it is, then how to reach it.
+fn guide_line(guide: &Value) -> Vec<String> {
     let mut lines = vec![format!(
         "{INDENT}{}",
-        str_at(document, "title").unwrap_or("(untitled)")
+        str_at(guide, "title").unwrap_or("(untitled)")
     )];
     let mut facts: Vec<String> = Vec::new();
-    if let Some(id) = str_at(document, "id") {
+    if let Some(id) = str_at(guide, "id") {
         facts.push(id.to_string());
     }
-    if let Some(category) = str_at(document, "category") {
+    if let Some(category) = str_at(guide, "category") {
         facts.push(category.to_string());
     }
-    if let Some(count) = count_at(document, "recordingCount") {
+    if let Some(count) = count_at(guide, "recordingCount") {
         facts.push(plural(count, "recording"));
     }
-    let applications = strings(document, "applications");
+    let applications = strings(guide, "applications");
     if !applications.is_empty() {
         facts.push(applications.join(", "));
     }
-    if let Some(similarity) = document
+    if let Some(similarity) = guide
         .get("relevance")
         .and_then(|relevance| relevance.get("semanticSimilarity"))
         .and_then(Value::as_f64)
@@ -295,15 +288,15 @@ fn document_line(document: &Value) -> Vec<String> {
         facts.push(format!("match {:.0}%", similarity * 100.0));
     }
     lines.push(format!("{INDENT}{INDENT}{}", facts.join("  ·  ")));
-    let tags = strings(document, "tags");
+    let tags = strings(guide, "tags");
     if !tags.is_empty() {
         lines.push(format!("{INDENT}{INDENT}{}", tags.join(", ")));
     }
     lines
 }
 
-fn document_list(value: &Value) -> String {
-    let items = list_at(value, "documents");
+fn guide_list(value: &Value) -> String {
+    let items = list_at(value, "guides");
     let total = count_at(value, "total").unwrap_or(count_of(items.len()));
     let mut out = Vec::new();
 
@@ -312,7 +305,7 @@ fn document_list(value: &Value) -> String {
         out.push(String::new());
     }
     if items.is_empty() {
-        out.push("No documents matched.".into());
+        out.push("No guides matched.".into());
         return out.join("\n");
     }
 
@@ -321,7 +314,7 @@ fn document_list(value: &Value) -> String {
         .unwrap_or(count_of(items.len()))
         .max(1);
     let pages = ((total + page_size - 1) / page_size).max(1);
-    let mut header = plural(total, "document");
+    let mut header = plural(total, "guide");
     if pages > 1 {
         let _ = write!(header, " (page {page} of {pages})");
     }
@@ -330,8 +323,8 @@ fn document_list(value: &Value) -> String {
     }
     out.push(header);
     out.push(String::new());
-    for document in items {
-        out.extend(document_line(document));
+    for guide in items {
+        out.extend(guide_line(guide));
         out.push(String::new());
     }
     if pages > page {
@@ -340,9 +333,9 @@ fn document_list(value: &Value) -> String {
     out.join("\n").trim_end().to_string()
 }
 
-/// A whole document, rendered against its own library schema so the sections come
-/// out in the order and under the labels the library defines.
-fn document_detail(value: &Value) -> String {
+/// A whole guide, rendered against the fixed guide structure the response
+/// carries, so the sections come out in its order and under its labels.
+fn guide_detail(value: &Value) -> String {
     let mut out = vec![str_at(value, "title").unwrap_or("(untitled)").to_string()];
 
     let mut facts: Vec<String> = Vec::new();
@@ -380,6 +373,25 @@ fn document_detail(value: &Value) -> String {
         out.push(render_section(section, body));
     }
 
+    // Scenarios are the variant cases of this guide. They are derived when the
+    // guide is read rather than stored, so they arrive beside `content` instead
+    // of as one of its sections and would otherwise never be printed.
+    let scenarios = list_at(value, "scenarios");
+    if !scenarios.is_empty() {
+        out.push(String::new());
+        out.push("SCENARIOS".into());
+        for scenario in scenarios {
+            out.push(format!(
+                "{INDENT}{} ({})",
+                str_at(scenario, "title").unwrap_or("(untitled)"),
+                str_at(scenario, "guideId").unwrap_or("-"),
+            ));
+            if let Some(trigger) = str_at(scenario, "trigger") {
+                out.push(wrap(trigger, &format!("{INDENT}{INDENT}"), 74));
+            }
+        }
+    }
+
     let edges = value.get("edges");
     let outgoing = edges.map_or(&[][..], |e| list_at(e, "outgoing"));
     let incoming = edges.map_or(&[][..], |e| list_at(e, "incoming"));
@@ -390,16 +402,16 @@ fn document_detail(value: &Value) -> String {
             out.push(format!(
                 "{INDENT}{} → {} ({})",
                 str_at(edge, "label").unwrap_or("related"),
-                str_at(edge, "targetDocumentTitle").unwrap_or("-"),
-                str_at(edge, "targetDocumentId").unwrap_or("-"),
+                str_at(edge, "targetGuideTitle").unwrap_or("-"),
+                str_at(edge, "targetGuideId").unwrap_or("-"),
             ));
         }
         for edge in incoming {
             out.push(format!(
                 "{INDENT}{} ← {} ({})",
                 str_at(edge, "label").unwrap_or("related"),
-                str_at(edge, "sourceDocumentTitle").unwrap_or("-"),
-                str_at(edge, "sourceDocumentId").unwrap_or("-"),
+                str_at(edge, "sourceGuideTitle").unwrap_or("-"),
+                str_at(edge, "sourceGuideId").unwrap_or("-"),
             ));
         }
     }
@@ -407,8 +419,15 @@ fn document_detail(value: &Value) -> String {
 }
 
 /// One content section. A list of steps becomes a numbered walkthrough; a group of
-/// fields becomes labelled prose.
+/// fields becomes labelled prose; a prose section is one free-text value.
 fn render_section(section: &Value, body: &Value) -> String {
+    // A prose section (Trigger, Rules, Boundaries) is a bare string. Without this
+    // it fell through to the unknown-shape branch and printed the JSON literal,
+    // quotes and escaped newlines included.
+    if let Some(text) = body.as_str() {
+        return wrap(text, INDENT, 76);
+    }
+
     if let Some(steps) = body.as_array() {
         return steps
             .iter()
@@ -466,7 +485,7 @@ fn traverse(value: &Value) -> String {
     let root = str_at(value, "root").unwrap_or("-");
     let mut out = vec![format!(
         "{} reachable from {root} (depth {})",
-        plural(count_of(nodes.len()), "document"),
+        plural(count_of(nodes.len()), "guide"),
         count_at(value, "maxDepth").unwrap_or(1)
     )];
     out.push(String::new());
@@ -492,8 +511,8 @@ fn traverse(value: &Value) -> String {
             };
             out.push(format!(
                 "{INDENT}{} → {}  ({}, seen in {}){confidence}",
-                str_at(edge, "sourceDocumentId").unwrap_or("-"),
-                str_at(edge, "targetDocumentId").unwrap_or("-"),
+                str_at(edge, "sourceGuideId").unwrap_or("-"),
+                str_at(edge, "targetGuideId").unwrap_or("-"),
                 str_at(edge, "label").unwrap_or("related"),
                 plural(count_at(edge, "support").unwrap_or(0), "recording"),
             ));
@@ -503,11 +522,11 @@ fn traverse(value: &Value) -> String {
 }
 
 fn graph(value: &Value) -> String {
-    let documents = list_at(value, "documents");
+    let guides = list_at(value, "guides");
     let edges = list_at(value, "edges");
     let mut out = vec![format!(
         "{} and {}",
-        plural(count_of(documents.len()), "document"),
+        plural(count_of(guides.len()), "guide"),
         plural(count_of(edges.len()), "link")
     )];
     if value.get("truncated") == Some(&Value::Bool(true)) {
@@ -515,15 +534,11 @@ fn graph(value: &Value) -> String {
     }
     out.push(String::new());
     let mut rows = vec![vec!["TITLE".into(), "RECORDINGS".into(), "ID".into()]];
-    for document in documents {
+    for guide in guides {
         rows.push(vec![
-            str_at(document, "title")
-                .unwrap_or("(untitled)")
-                .to_string(),
-            count_at(document, "recordingCount")
-                .unwrap_or(0)
-                .to_string(),
-            str_at(document, "id").unwrap_or("-").to_string(),
+            str_at(guide, "title").unwrap_or("(untitled)").to_string(),
+            count_at(guide, "recordingCount").unwrap_or(0).to_string(),
+            str_at(guide, "id").unwrap_or("-").to_string(),
         ]);
     }
     out.push(table(&rows));
@@ -605,29 +620,29 @@ fn whoami(value: &Value) -> String {
         format!("{INDENT}API:  {}", str_at(value, "apiUrl").unwrap_or("-")),
         format!(
             "{INDENT}Sees: {} across {}",
-            plural(count_at(value, "documentCount").unwrap_or(0), "document"),
+            plural(count_at(value, "guideCount").unwrap_or(0), "guide"),
             plural_of(
                 count_of(libraries.len()),
-                "document library",
-                "document libraries"
+                "guide library",
+                "guide libraries"
             ),
         ),
     ];
     if libraries.is_empty() {
         out.push(String::new());
         out.push(
-            "This key is not scoped to any document library, so every search will come \
+            "This key is not scoped to any guide library, so every search will come \
              back empty. Add one where the key was created."
                 .into(),
         );
         return out.join("\n");
     }
     out.push(String::new());
-    let mut rows = vec![vec!["LIBRARY".into(), "DOCUMENTS".into(), "ID".into()]];
+    let mut rows = vec![vec!["LIBRARY".into(), "GUIDES".into(), "ID".into()]];
     for library in libraries {
         rows.push(vec![
             str_at(library, "name").unwrap_or("(untitled)").to_string(),
-            count_at(library, "documentCount").unwrap_or(0).to_string(),
+            count_at(library, "guideCount").unwrap_or(0).to_string(),
             str_at(library, "id").unwrap_or("-").to_string(),
         ]);
     }
@@ -666,33 +681,34 @@ mod tests {
     use serde_json::json;
 
     #[test]
-    fn counts_never_read_as_one_documents() {
-        assert_eq!(plural(1, "document"), "1 document");
-        assert_eq!(plural(0, "document"), "0 documents");
-        assert_eq!(plural(2, "document"), "2 documents");
+    fn counts_never_read_as_one_guides() {
+        assert_eq!(plural(1, "guide"), "1 guide");
+        assert_eq!(plural(0, "guide"), "0 guides");
+        assert_eq!(plural(2, "guide"), "2 guides");
         // An irregular noun spells both forms out rather than gaining an "s".
         assert_eq!(
-            plural_of(2, "document library", "document libraries"),
-            "2 document libraries"
+            plural_of(2, "guide library", "guide libraries"),
+            "2 guide libraries"
         );
     }
 
     #[test]
     fn a_library_list_becomes_an_aligned_table() {
         let rendered = render(&json!({ "libraries": [
-            { "name": "Support", "documentCount": 4, "categories": ["Billing"], "id": "lib_1" },
-            { "name": "Ops", "documentCount": 12, "categories": [], "id": "lib_2" },
+            { "name": "Support", "guideCount": 4, "categories": ["Billing"], "id": "lib_1" },
+            { "name": "Ops", "guideCount": 12, "categories": [], "id": "lib_2" },
         ]}))
         .expect("libraries render");
-        assert!(rendered.contains("2 document libraries"));
+        assert!(rendered.contains("2 guide libraries"));
         assert!(rendered.contains("NAME"));
         assert!(rendered.contains("Support"));
         // The id column lines up because the name column is padded.
         let lines: Vec<&str> = rendered.lines().collect();
         let header = lines.iter().find(|l| l.contains("NAME")).expect("header");
         let support = lines.iter().find(|l| l.contains("Support")).expect("row");
+        // rfind: the ID header is the last column, and "GUIDES" also contains "ID".
         assert_eq!(
-            header.find("ID"),
+            header.rfind("ID"),
             support.find("lib_1"),
             "columns must align"
         );
@@ -701,15 +717,15 @@ mod tests {
     #[test]
     fn an_empty_result_says_so_in_words() {
         let rendered = render(&json!({ "libraries": [] })).expect("renders");
-        assert!(rendered.contains("No document libraries"));
-        let rendered = render(&json!({ "documents": [], "total": 0 })).expect("renders");
-        assert!(rendered.contains("No documents matched"));
+        assert!(rendered.contains("No guide libraries"));
+        let rendered = render(&json!({ "guides": [], "total": 0 })).expect("renders");
+        assert!(rendered.contains("No guides matched"));
     }
 
     #[test]
     fn search_guidance_and_weak_matches_are_surfaced() {
         let rendered = render(&json!({
-            "documents": [{ "title": "A", "id": "doc_1" }],
+            "guides": [{ "title": "A", "id": "guide_1" }],
             "total": 1, "page": 1, "pageSize": 20,
             "lowConfidence": true,
             "guidance": "Nothing matched, try other words.",
@@ -722,7 +738,7 @@ mod tests {
     #[test]
     fn paging_tells_you_how_to_get_the_next_page() {
         let rendered = render(&json!({
-            "documents": [{ "title": "A", "id": "doc_1" }],
+            "guides": [{ "title": "A", "id": "guide_1" }],
             "total": 40, "page": 1, "pageSize": 20,
         }))
         .expect("renders");
@@ -731,15 +747,15 @@ mod tests {
     }
 
     #[test]
-    fn a_document_renders_its_steps_against_its_schema() {
+    fn a_guide_renders_its_steps_against_its_schema() {
         let rendered = render(&json!({
             "title": "Refund a customer",
-            "id": "doc_1",
+            "id": "guide_1",
             "recordingCount": 2,
             "schema": { "sections": [
-                { "key": "sop", "title": "Steps", "type": "timeline", "fields": [] }
+                { "key": "steps", "title": "Steps", "type": "timeline", "fields": [] }
             ]},
-            "content": { "sop": [
+            "content": { "steps": [
                 { "instruction": "Open Stripe", "application": "Chrome",
                   "expected_result": "Payments are listed" }
             ]},
@@ -754,25 +770,73 @@ mod tests {
     }
 
     #[test]
-    fn a_document_is_not_mistaken_for_a_tag_vocabulary() {
-        // A document carries `tags` too, but as bare strings. Rendering it as the
+    fn a_prose_section_reads_as_prose_not_as_json() {
+        // Trigger, Rules and Boundaries are single free-text values, so a body
+        // that is a bare string must lose its quotes and its escaped newlines.
+        let rendered = render(&json!({
+            "title": "Refund a customer",
+            "id": "guide_1",
+            "schema": { "sections": [
+                { "key": "trigger", "title": "Trigger", "type": "prose", "fields": [] }
+            ]},
+            "content": { "trigger": "A customer asks for a refund.\nNot for a chargeback." },
+        }))
+        .expect("renders");
+        assert!(rendered.contains("TRIGGER"), "got: {rendered}");
+        assert!(
+            rendered.contains("A customer asks for a refund."),
+            "got: {rendered}"
+        );
+        assert!(!rendered.contains('"'), "got: {rendered}");
+        assert!(!rendered.contains("\\n"), "got: {rendered}");
+    }
+
+    #[test]
+    fn the_scenarios_index_is_printed() {
+        // Scenarios are derived when the guide is read, so they sit beside
+        // `content` rather than inside it and the section walk never sees them.
+        let rendered = render(&json!({
+            "title": "Refund a customer",
+            "id": "guide_1",
+            "content": {},
+            "schema": { "sections": [] },
+            "scenarios": [
+                { "guideId": "guide_2", "title": "Refund a subscription",
+                  "trigger": "The order is a recurring plan." }
+            ],
+        }))
+        .expect("renders");
+        assert!(rendered.contains("SCENARIOS"), "got: {rendered}");
+        assert!(
+            rendered.contains("Refund a subscription (guide_2)"),
+            "got: {rendered}"
+        );
+        assert!(
+            rendered.contains("The order is a recurring plan."),
+            "got: {rendered}"
+        );
+    }
+
+    #[test]
+    fn a_guide_is_not_mistaken_for_a_tag_vocabulary() {
+        // A guide carries `tags` too, but as bare strings. Rendering it as the
         // tag list produced a table of dashes and zeroes.
         let rendered = render(&json!({
             "title": "Refund a customer",
-            "id": "doc_1",
+            "id": "guide_1",
             "tags": ["stripe", "refunds"],
-            "content": { "sop": [] },
+            "content": { "steps": [] },
             "schema": { "sections": [] },
         }))
         .expect("renders");
         assert!(rendered.starts_with("Refund a customer"), "got: {rendered}");
-        assert!(!rendered.contains("DOCUMENTS"), "got: {rendered}");
+        assert!(!rendered.contains("GUIDES"), "got: {rendered}");
     }
 
     #[test]
     fn a_tag_vocabulary_still_renders_as_counts() {
         let rendered = render(&json!({
-            "tags": [{ "name": "stripe", "documentCount": 3 }]
+            "tags": [{ "name": "stripe", "guideCount": 3 }]
         }))
         .expect("renders");
         assert!(rendered.contains("TAGS"));
@@ -787,7 +851,7 @@ mod tests {
 
     #[test]
     fn wrapping_never_breaks_an_id() {
-        let id = "doc_01kzrrsky9edmreg60dxwgz2xz";
+        let id = "guide_01kzrrsky9edmreg60dxwgz2xz";
         let wrapped = wrap(&format!("see {id} for detail"), "", 10);
         assert!(wrapped.contains(id), "an id must survive wrapping intact");
     }

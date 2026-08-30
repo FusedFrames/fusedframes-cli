@@ -77,7 +77,7 @@ fn help_flag_exits_zero() {
         .assert()
         .success()
         .stdout(predicate::str::contains(
-            "Find and read the documents FusedFrames makes from your recorded work",
+            "Find and read the guides FusedFrames makes from your recorded work",
         ));
 }
 
@@ -613,7 +613,7 @@ fn libraries_subcommands_hit_their_endpoints() {
             "/libraries/lib_1/applications",
         ),
         (vec!["graph", "lib_1"], "/libraries/lib_1/graph"),
-        (vec!["documents", "get", "doc_1"], "/documents/doc_1"),
+        (vec!["guides", "get", "guide_1"], "/guides/guide_1"),
     ] {
         let home = home();
         let mut server = mockito::Server::new();
@@ -635,17 +635,17 @@ fn libraries_subcommands_hit_their_endpoints() {
 }
 
 #[test]
-fn documents_list_sends_default_pagination_only() {
+fn guides_list_sends_default_pagination_only() {
     let home = home();
     let mut server = mockito::Server::new();
     let mock = server
-        .mock("GET", "/libraries/lib_1/documents?page=1&pageSize=20")
+        .mock("GET", "/libraries/lib_1/guides?page=1&pageSize=20")
         .with_status(200)
         .with_body("{}")
         .create();
 
     cli(&home)
-        .args(["documents", "list", "lib_1"])
+        .args(["guides", "list", "lib_1"])
         .env("FUSEDFRAMES_API_KEY", "ff_key")
         .env("FUSEDFRAMES_API_URL", server.url())
         .assert()
@@ -654,13 +654,13 @@ fn documents_list_sends_default_pagination_only() {
 }
 
 #[test]
-fn documents_list_sends_all_filters_in_order() {
+fn guides_list_sends_all_filters_in_order() {
     let home = home();
     let mut server = mockito::Server::new();
     let mock = server
         .mock(
             "GET",
-            "/libraries/lib_1/documents?category=Deployment&tag=rollback&application=Terminal&search=failed+health+check&page=2&pageSize=50",
+            "/libraries/lib_1/guides?category=Deployment&tag=rollback&application=Terminal&search=failed+health+check&page=2&pageSize=50",
         )
         .with_status(200)
         .with_body("{}")
@@ -668,7 +668,7 @@ fn documents_list_sends_all_filters_in_order() {
 
     cli(&home)
         .args([
-            "documents",
+            "guides",
             "list",
             "lib_1",
             "--category",
@@ -698,7 +698,7 @@ fn source_recordings_sends_pagination() {
     let mock = server
         .mock(
             "GET",
-            "/documents/doc_1/source-recordings?page=1&pageSize=10",
+            "/guides/guide_1/source-recordings?page=1&pageSize=10",
         )
         .with_status(200)
         .with_body("{}")
@@ -706,9 +706,9 @@ fn source_recordings_sends_pagination() {
 
     cli(&home)
         .args([
-            "documents",
+            "guides",
             "source-recordings",
-            "doc_1",
+            "guide_1",
             "--page-size",
             "10",
         ])
@@ -724,13 +724,13 @@ fn traverse_sends_defaults_and_omits_label() {
     let home = home();
     let mut server = mockito::Server::new();
     let mock = server
-        .mock("GET", "/documents/doc_1/traverse?direction=both&depth=1")
+        .mock("GET", "/guides/guide_1/traverse?direction=both&depth=1")
         .with_status(200)
         .with_body("{}")
         .create();
 
     cli(&home)
-        .args(["traverse", "doc_1"])
+        .args(["traverse", "guide_1"])
         .env("FUSEDFRAMES_API_KEY", "ff_key")
         .env("FUSEDFRAMES_API_URL", server.url())
         .assert()
@@ -745,7 +745,7 @@ fn traverse_sends_explicit_options() {
     let mock = server
         .mock(
             "GET",
-            "/documents/doc_1/traverse?direction=outgoing&label=often+next&depth=2",
+            "/guides/guide_1/traverse?direction=outgoing&label=often+next&depth=2",
         )
         .with_status(200)
         .with_body("{}")
@@ -754,7 +754,7 @@ fn traverse_sends_explicit_options() {
     cli(&home)
         .args([
             "traverse",
-            "doc_1",
+            "guide_1",
             "--direction",
             "outgoing",
             "--label",
@@ -776,7 +776,7 @@ fn search_sends_query_and_filters() {
     let mock = server
         .mock(
             "GET",
-            "/search/documents?q=deploy+failed&libraryId=lib_9&page=1&pageSize=20",
+            "/search/guides?q=deploy+failed&libraryId=lib_9&page=1&pageSize=20",
         )
         .with_status(200)
         .with_body("{}")
@@ -797,13 +797,13 @@ fn ids_are_percent_encoded_into_the_path() {
     let mut server = mockito::Server::new();
     // An id with a space and a slash cannot smuggle extra path segments.
     let mock = server
-        .mock("GET", "/documents/doc%20x%2Fy")
+        .mock("GET", "/guides/guide%20x%2Fy")
         .with_status(200)
         .with_body("{}")
         .create();
 
     cli(&home)
-        .args(["documents", "get", "doc x/y"])
+        .args(["guides", "get", "guide x/y"])
         .env("FUSEDFRAMES_API_KEY", "ff_key")
         .env("FUSEDFRAMES_API_URL", server.url())
         .assert()
@@ -984,7 +984,7 @@ fn version_output_is_the_bare_version() {
 fn missing_argument_errors_name_the_argument() {
     let home = home();
     let output = cli(&home)
-        .args(["documents", "list"])
+        .args(["guides", "list"])
         .assert()
         .failure()
         .code(1)
@@ -1009,22 +1009,14 @@ fn option_values_may_start_with_a_hyphen() {
     let mock = server
         .mock(
             "GET",
-            "/libraries/lib_1/documents?search=-rf&page=-1&pageSize=20",
+            "/libraries/lib_1/guides?search=-rf&page=-1&pageSize=20",
         )
         .with_status(200)
         .with_body("{}")
         .create();
 
     cli(&home)
-        .args([
-            "documents",
-            "list",
-            "lib_1",
-            "--search",
-            "-rf",
-            "--page",
-            "-1",
-        ])
+        .args(["guides", "list", "lib_1", "--search", "-rf", "--page", "-1"])
         .env("FUSEDFRAMES_API_KEY", "ff_key")
         .env("FUSEDFRAMES_API_URL", server.url())
         .assert()

@@ -2,7 +2,7 @@
   "name": "@fusedframes/cli",
   "version": "0.0.0-dev",
   "private": true,
-  "description": "CLI for finding and reading your FusedFrames documents",
+  "description": "CLI for finding and reading your FusedFrames guides",
   "license": "MIT",
   "author": "FusedFrames <hello@fusedframes.com> (https://www.fusedframes.com)",
   "homepage": "https://www.fusedframes.com",
@@ -25,7 +25,7 @@
   "keywords": [
     "fusedframes",
     "cli",
-    "documents",
+    "guides",
     "ai-agent"
   ],
   "optionalDependencies": {}

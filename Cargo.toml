@@ -1,16 +1,16 @@
 [package]
 name = "fusedframes-cli"
-version = "2.0.1"
+version = "2.0.3"
 edition = "2024"
 rust-version = "1.88"
-description = "CLI for finding and reading your FusedFrames documents"
+description = "CLI for finding and reading your FusedFrames guides"
 license = "MIT"
 authors = ["FusedFrames <hello@fusedframes.com>"]
 homepage = "https://www.fusedframes.com"
 documentation = "https://www.fusedframes.com/docs"
 repository = "https://github.com/FusedFrames/fusedframes-cli"
 readme = "README.md"
-keywords = ["fusedframes", "cli", "documents", "ai-agent"]
+keywords = ["fusedframes", "cli", "guides", "ai-agent"]
 categories = ["command-line-utilities"]
 
 [[bin]]

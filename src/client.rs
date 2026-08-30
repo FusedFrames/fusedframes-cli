@@ -245,10 +245,10 @@ mod tests {
     #[test]
     fn build_url_percent_encodes_path_segments() {
         let base = parse("https://api.fusedframes.com");
-        let url = build_url(&base, &["documents", "doc x/../y?z"], &[]).expect("builds");
+        let url = build_url(&base, &["guides", "guide x/../y?z"], &[]).expect("builds");
         assert_eq!(
             url.as_str(),
-            "https://api.fusedframes.com/documents/doc%20x%2F..%2Fy%3Fz"
+            "https://api.fusedframes.com/guides/guide%20x%2F..%2Fy%3Fz"
         );
     }
 
@@ -284,13 +284,13 @@ mod tests {
         let base = parse("https://api.fusedframes.com");
         let url = build_url(
             &base,
-            &["search", "documents"],
+            &["search", "guides"],
             &[("q", Some("failed deploy"))],
         )
         .expect("builds");
         assert_eq!(
             url.as_str(),
-            "https://api.fusedframes.com/search/documents?q=failed+deploy"
+            "https://api.fusedframes.com/search/guides?q=failed+deploy"
         );
     }
 

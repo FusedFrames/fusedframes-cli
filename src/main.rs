@@ -1,4 +1,4 @@
-//! FusedFrames CLI: find and read the documents FusedFrames makes from your
+//! FusedFrames CLI: find and read the guides FusedFrames makes from your
 //! recorded work.
 //!
 //! A Rust rebuild of the original TypeScript CLI. The machine-facing contract is
