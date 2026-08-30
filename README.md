@@ -68,7 +68,7 @@ cargo install --git https://github.com/FusedFrames/fusedframes-cli
 
 ## Setup
 
-Create an API key in your workspace settings → API keys at `www.fusedframes.com/workspace/<your-workspace>/api-keys`, then configure the CLI:
+Create an API key in the FusedFrames desktop app (API keys, in the sidebar), then configure the CLI:
 
 ```bash
 echo "ff_your_api_key" | fusedframes config set-key
