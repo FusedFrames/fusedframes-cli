@@ -8,6 +8,7 @@
 //! interactively gets that response rendered to read instead, and `--json` puts the
 //! machine format back.
 
+mod attestation;
 mod cli;
 mod client;
 mod commands;

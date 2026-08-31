@@ -36,6 +36,16 @@ reqwest = { version = "0.12", default-features = false, features = [
 url = "2"
 rpassword = "7"
 clap_complete = "4.6.9"
+# Enclave attestation. `attestation-doc-validation` and the AWS Nitro SDK both
+# pull OpenSSL (or a C library) into a binary that is deliberately pure Rust on
+# rustls, so the COSE_Sign1 (ES384) verification in `src/attestation.rs` is done
+# directly with RustCrypto primitives instead.
+base64 = "0.22"
+ciborium = "0.2"
+hex = "0.4"
+p384 = { version = "0.13", features = ["ecdsa"] }
+sha2 = "0.10"
+x509-parser = "0.16"
 
 [dev-dependencies]
 assert_cmd = "2"

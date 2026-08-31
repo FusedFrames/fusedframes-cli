@@ -12,6 +12,7 @@ use std::time::Duration;
 use serde_json::Value;
 use url::{Host, Url};
 
+use crate::attestation;
 use crate::config;
 use crate::error::CliError;
 
@@ -58,6 +59,12 @@ pub fn request(segments: &[&str], params: &[(&str, Option<&str>)]) -> Result<Val
         ));
     }
 
+    // Nothing leaves this machine until the host has proved it is a genuine
+    // FusedFrames enclave: every request either carries the caller's own
+    // content or brings some back. Verified once per host, then cached for ten
+    // minutes; loopback skips it.
+    attestation::ensure_verified(&parsed_base)?;
+
     let url = build_url(&parsed_base, segments, params)?;
 
     let response = http_client()?
@@ -98,7 +105,7 @@ pub fn request(segments: &[&str], params: &[(&str, Option<&str>)]) -> Result<Val
 /// check (`127.0.0.1`/`::1`) in that any 127.0.0.0/8 address qualifies. Every
 /// such address is loopback by definition, so the security boundary is
 /// unchanged.
-fn is_loopback(url: &Url) -> bool {
+pub fn is_loopback(url: &Url) -> bool {
     match url.host() {
         Some(Host::Domain(domain)) => domain == "localhost",
         Some(Host::Ipv4(ip)) => ip.is_loopback(),

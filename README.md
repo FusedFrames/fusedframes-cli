@@ -267,6 +267,7 @@ Codes produced by the CLI itself:
 | `validation_error` | Invalid command-line arguments, or an API key passed as an argument |
 | `config_error` | Missing API key, invalid API URL or a non-HTTPS API URL |
 | `network_error` | The API could not be reached (DNS, connection, TLS, timeout) |
+| `enclave_unverified` | The host did not prove it is a genuine FusedFrames enclave, so nothing was sent to it |
 | `server_error` | The API answered without the standard JSON error envelope |
 | `error` | Unexpected local failure (e.g. the config file could not be written) |
 | `unknown` | The API sent an error envelope with a message but no code |
